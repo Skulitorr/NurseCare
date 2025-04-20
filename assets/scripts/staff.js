@@ -1858,68 +1858,107 @@ function initializeScrollToTop() {
 
 // Setup other event listeners
 function setupEventListeners() {
-    // Any additional event listeners not covered elsewhere
+    // Menu toggle for mobile
+    const menuToggle = document.querySelector('.menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('.main-content');
+
+    menuToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+        mainContent.classList.toggle('sidebar-hidden');
+    });
+
+    // Dark mode toggle
+    const darkModeToggle = document.querySelector('.dark-mode-toggle');
+    darkModeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isDarkMode);
+    });
+
+    // Staff search
+    const searchInput = document.getElementById('staffSearch');
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const filteredStaff = staffData.filter(staff => 
+            staff.name.toLowerCase().includes(searchTerm) ||
+            staff.role.toLowerCase().includes(searchTerm)
+        );
+        renderFilteredStaffCards(filteredStaff);
+    });
+
+    // Add staff button
+    const addStaffBtn = document.querySelector('.add-staff-btn');
+    addStaffBtn.addEventListener('click', () => {
+        // TODO: Implement add staff functionality
+        console.log('Add staff clicked');
+    });
+
+    // Check for saved dark mode preference
+    const savedDarkMode = localStorage.getItem('darkMode');
+    if (savedDarkMode === 'true') {
+        document.body.classList.add('dark-mode');
+    }
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            sidebar.classList.remove('active');
+            mainContent.classList.remove('sidebar-hidden');
+        }
+    });
 }
 
-// Toast notification function
-function showToast(title, message, type = 'info') {
-    // Create toast container if it doesn't exist
-    let toastContainer = document.getElementById('toast-container');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.id = 'toast-container';
-        toastContainer.className = 'toast-container';
-        document.body.appendChild(toastContainer);
+// Render filtered staff cards
+function renderFilteredStaffCards(filteredStaff) {
+    const staffCardsContainer = document.getElementById('staffCards');
+    staffCardsContainer.innerHTML = '';
+
+    if (filteredStaff.length === 0) {
+        staffCardsContainer.innerHTML = `
+            <div class="no-results">
+                <i class="fas fa-search"></i>
+                <p>No staff members found</p>
+            </div>
+        `;
+        return;
     }
-    
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.setAttribute('role', 'alert');
-    toast.setAttribute('aria-live', 'polite');
-    
-    let icon;
-    switch (type) {
-        case 'success': icon = 'fa-check-circle'; break;
-        case 'error': icon = 'fa-times-circle'; break;
-        case 'warning': icon = 'fa-exclamation-triangle'; break;
-        default: icon = 'fa-info-circle';
-    }
-    
-    toast.innerHTML = `
-        <div class="toast-icon">
-            <i class="fas ${icon}" aria-hidden="true"></i>
-        </div>
-        <div class="toast-content">
-            <div class="toast-title">${title}</div>
-            <div class="toast-message">${message}</div>
-        </div>
-        <button class="toast-close" aria-label="Loka tilkynningu">
-            <i class="fas fa-times" aria-hidden="true"></i>
-        </button>
-    `;
-    
-    toastContainer.appendChild(toast);
-    
-    const closeBtn = toast.querySelector('.toast-close');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            toast.classList.add('toast-hide');
-            setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.remove();
-                }
-            }, 300);
-        });
-    }
-    
-    setTimeout(() => {
-        if (toast.parentNode) {
-            toast.classList.add('toast-hide');
-            setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.remove();
-                }
-            }, 300);
-        }
-    }, 5000);
+
+    filteredStaff.forEach(staff => {
+        const card = document.createElement('div');
+        card.className = 'staff-card';
+        card.innerHTML = `
+            <div class="staff-card-header">
+                <img src="${staff.avatar}" alt="${staff.name}" class="staff-image">
+                <div class="staff-status ${staff.status.toLowerCase().replace(' ', '-')}">
+                    ${staff.status}
+                </div>
+            </div>
+            <div class="staff-card-body">
+                <h4>${staff.name}</h4>
+                <p class="staff-role">${staff.role}</p>
+            </div>
+            <div class="staff-card-footer">
+                <button class="edit-staff-btn">
+                    <i class="fas fa-edit"></i>
+                    Edit
+                </button>
+                <button class="view-schedule-btn">
+                    <i class="fas fa-calendar"></i>
+                    Schedule
+                </button>
+            </div>
+        `;
+        staffCardsContainer.appendChild(card);
+    });
+}
+
+// Export functions for testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        initializeStaffCharts,
+        renderStaffCards,
+        updateStaffOverview,
+        setupEventListeners
+    };
 }

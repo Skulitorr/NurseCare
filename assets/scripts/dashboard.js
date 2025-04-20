@@ -12,6 +12,37 @@ const dashboardState = {
     darkMode: false
 };
 
+// Mock data for the dashboard
+const mockData = {
+    inventory: {
+        total: 1250,
+        lowStock: 15,
+        categories: {
+            'Medical Supplies': 450,
+            'Medications': 350,
+            'Equipment': 250,
+            'Personal Care': 200
+        }
+    },
+    shifts: {
+        total: 48,
+        current: 12,
+        distribution: {
+            'Morning': 16,
+            'Afternoon': 16,
+            'Night': 16
+        }
+    },
+    patients: {
+        total: 85,
+        status: {
+            'Stable': 45,
+            'Recovering': 25,
+            'Critical': 15
+        }
+    }
+};
+
 // Document ready function
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Initializing NurseCare AI Dashboard...');
@@ -102,280 +133,64 @@ export function initializeCharts() {
     
     // Add a small delay to ensure DOM is fully loaded
     setTimeout(() => {
-        initializeAttendanceChart();
-        initializeMedicationChart();
-        initializeStaffChart();
-        initializeInventoryChart();
+        createInventoryChart();
+        createShiftDistributionChart();
+        createPatientStatusChart();
         
         dashboardState.chartsInitialized = true;
     }, 100);
 }
 
-// Create attendance chart with improved styling and data
-function initializeAttendanceChart() {
-    const ctx = document.getElementById('attendanceChart');
-    if (!ctx) return;
-    
-    const isDarkMode = document.body.classList.contains('dark-mode');
-    const textColor = isDarkMode ? '#e2e8f0' : '#333333';
-    
-    // Check if chart instance exists before trying to destroy it
-    if (window.attendanceChart && typeof window.attendanceChart.destroy === 'function') {
-        window.attendanceChart.destroy();
-    }
-    
-    // Get last 7 days labels for x-axis
-    const dayLabels = getLast7DaysLabels();
-    
-    window.attendanceChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: dayLabels,
-            datasets: [{
-                label: 'Vikuleg mæting (%)',
-                data: [92, 88, 94, 91, 85, 89, 95],
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4
-            }, {
-                label: 'Fjarvera (%)',
-                data: [8, 12, 6, 9, 15, 11, 5],
-                borderColor: '#f59e0b',
-                backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            aspectRatio: 2,
-            animation: {
-                duration: 750
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        color: textColor,
-                        callback: function(value) {
-                            return value + '%';
-                        }
-                    },
-                    grid: {
-                        color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-                        drawBorder: false
-                    }
-                },
-                x: {
-                    ticks: {
-                        color: textColor
-                    },
-                    grid: {
-                        color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-                        drawBorder: false
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top',
-                    labels: {
-                        color: textColor,
-                        usePointStyle: true,
-                        boxWidth: 6
-                    }
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                    callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': ' + context.parsed.y + '%';
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-
-// Helper function to get last 7 days as labels
-function getLast7DaysLabels() {
-    const days = ['Sun', 'Mán', 'Þri', 'Mið', 'Fim', 'Fös', 'Lau'];
-    const result = [];
-    
-    for (let i = 6; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        const dayName = days[date.getDay()];
-        result.push(dayName);
-    }
-    
-    return result;
-}
-
-/**
- * Initialize medication chart
- */
-export function initializeMedicationChart() {
-    const ctx = document.getElementById('medicationChart');
-    if (!ctx) return;
-    
-    const isDarkMode = document.body.classList.contains('dark-mode');
-    const textColor = isDarkMode ? '#e2e8f0' : '#333333';
-    
-    // Check if chart instance exists before trying to destroy it
-    if (window.medicationChart && typeof window.medicationChart.destroy === 'function') {
-        window.medicationChart.destroy();
-    }
-    
-    window.medicationChart = new Chart(ctx, {
+// Create inventory distribution chart
+function createInventoryChart() {
+    const ctx = document.getElementById('inventoryChart').getContext('2d');
+    new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['Gefin', 'Eftir'],
+            labels: Object.keys(mockData.inventory.categories),
             datasets: [{
-                data: [75, 25],
+                data: Object.values(mockData.inventory.categories),
                 backgroundColor: [
-                    '#10b981',
-                    isDarkMode ? '#4b5563' : '#e5e7eb'
-                ],
-                borderWidth: 0,
-                hoverOffset: 4
+                    '#4a90e2',
+                    '#50c878',
+                    '#f39c12',
+                    '#e74c3c'
+                ]
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
-            aspectRatio: 1.5,
-            animation: {
-                duration: 750
-            },
-            cutout: '70%',
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'bottom',
-                    labels: {
-                        color: textColor,
-                        boxWidth: 12,
-                        padding: 10,
-                        usePointStyle: true
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.label + ': ' + context.parsed + '%';
-                        }
-                    }
-                },
-                // Add center text plugin
-                doughnutCenterText: {
-                    text: '75%',
-                    color: textColor,
-                    fontStyle: 'bold',
-                    fontSize: 24
+                    position: 'bottom'
                 }
             }
-        },
-        plugins: [{
-            id: 'doughnutCenterText',
-            beforeDraw: function(chart) {
-                if (chart.config.options.plugins.doughnutCenterText) {
-                    // Get ctx and config
-                    const ctx = chart.ctx;
-                    const options = chart.config.options.plugins.doughnutCenterText;
-                    
-                    // Get chart data
-                    const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
-                    const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
-                    
-                    // Draw center text
-                    ctx.save();
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.font = options.fontStyle + ' ' + options.fontSize + 'px sans-serif';
-                    ctx.fillStyle = options.color;
-                    ctx.fillText(options.text, centerX, centerY);
-                    ctx.restore();
-                }
-            }
-        }]
+        }
     });
 }
 
-// Create staff chart with improved visualization
-function initializeStaffChart() {
-    const ctx = document.getElementById('staffChart');
-    if (!ctx) return;
-    
-    const isDarkMode = document.body.classList.contains('dark-mode');
-    const textColor = isDarkMode ? '#e2e8f0' : '#333333';
-    
-    // Check if chart instance exists before trying to destroy it
-    if (window.staffChart && typeof window.staffChart.destroy === 'function') {
-        window.staffChart.destroy();
-    }
-    
-    window.staffChart = new Chart(ctx, {
+// Create shift distribution chart
+function createShiftDistributionChart() {
+    const ctx = document.getElementById('shiftChart').getContext('2d');
+    new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Hjúkrunarfræðingar', 'Sjúkraliðar', 'Aðstoðarfólk', 'Læknar'],
+            labels: Object.keys(mockData.shifts.distribution),
             datasets: [{
-                label: 'Áætlun',
-                data: [6, 4, 5, 2],
-                backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.2)',
-                borderColor: '#3b82f6',
-                borderWidth: 1
-            }, {
-                label: 'Raunveruleg mæting',
-                data: [5, 3, 4, 1],
-                backgroundColor: '#3b82f6',
-                borderColor: '#3b82f6',
-                borderWidth: 1
+                label: 'Staff Count',
+                data: Object.values(mockData.shifts.distribution),
+                backgroundColor: '#4a90e2'
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
-            aspectRatio: 2,
-            animation: {
-                duration: 750
-            },
+            maintainAspectRatio: false,
             scales: {
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        color: textColor,
                         stepSize: 1
-                    },
-                    grid: {
-                        color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-                        drawBorder: false
-                    }
-                },
-                x: {
-                    ticks: {
-                        color: textColor,
-                        maxRotation: 45,
-                        minRotation: 45
-                    },
-                    grid: {
-                        display: false
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    labels: {
-                        color: textColor,
-                        usePointStyle: true
                     }
                 }
             }
@@ -383,87 +198,28 @@ function initializeStaffChart() {
     });
 }
 
-/**
- * Initialize inventory chart
- */
-export function initializeInventoryChart() {
-    const ctx = document.getElementById('inventoryChart');
-    if (!ctx) return;
-    
-    const isDarkMode = document.body.classList.contains('dark-mode');
-    const textColor = isDarkMode ? '#e2e8f0' : '#333333';
-    
-    // Check if chart instance exists before trying to destroy it
-    if (window.inventoryChart && typeof window.inventoryChart.destroy === 'function') {
-        window.inventoryChart.destroy();
-    }
-    
-    window.inventoryChart = new Chart(ctx, {
-        type: 'bar',
+// Create patient status chart
+function createPatientStatusChart() {
+    const ctx = document.getElementById('patientChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
         data: {
-            labels: ['Hanskar', 'Grímur', 'Sprautur', 'Sáraumbúðir', 'Spritt'],
+            labels: Object.keys(mockData.patients.status),
             datasets: [{
-                label: '% af lágmarks birgðum',
-                data: [120, 20, 85, 45, 90],
+                data: Object.values(mockData.patients.status),
                 backgroundColor: [
-                    '#10b981', // Good (green)
-                    '#ef4444', // Critical (red)
-                    '#10b981', // Good (green)
-                    '#f59e0b', // Warning (yellow)
-                    '#10b981'  // Good (green)
-                ],
-                borderWidth: 0
+                    '#50c878',
+                    '#f39c12',
+                    '#e74c3c'
+                ]
             }]
         },
         options: {
-            indexAxis: 'y',
             responsive: true,
-            maintainAspectRatio: true,
-            aspectRatio: 1.5,
-            animation: {
-                duration: 750
-            },
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    max: 150,
-                    ticks: {
-                        color: textColor,
-                        callback: function(value) {
-                            return value + '%';
-                        }
-                    },
-                    grid: {
-                        color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-                        drawBorder: false
-                    }
-                },
-                y: {
-                    ticks: {
-                        color: textColor
-                    },
-                    grid: {
-                        display: false
-                    }
-                }
-            },
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const value = context.parsed.x;
-                            let status = '';
-                            
-                            if (value < 30) status = '- Bráðavara';
-                            else if (value < 60) status = '- Lágt magn';
-                            else status = '- Gott magn';
-                            
-                            return context.dataset.label + ': ' + value + '% ' + status;
-                        }
-                    }
+                    position: 'bottom'
                 }
             }
         }
@@ -1998,3 +1754,52 @@ function updateChartsForTheme() {
     
     charts.forEach(updateOptions);
 }
+
+// Update overview cards with mock data
+function updateOverviewCards() {
+    document.getElementById('totalInventory').textContent = mockData.inventory.total;
+    document.getElementById('lowStock').textContent = mockData.inventory.lowStock;
+    document.getElementById('totalShifts').textContent = mockData.shifts.total;
+    document.getElementById('currentShift').textContent = mockData.shifts.current;
+}
+
+// Setup event listeners for UI interactions
+function setupEventListeners() {
+    // Menu toggle for mobile
+    const menuToggle = document.querySelector('.menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (menuToggle && sidebar) {
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+    }
+
+    // Dark mode toggle
+    const darkModeToggle = document.querySelector('.dark-mode-toggle');
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('click', () => {
+            document.body.setAttribute('data-theme', 
+                document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
+            );
+        });
+    }
+
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768 && 
+            !e.target.closest('.sidebar') && 
+            !e.target.closest('.menu-toggle') &&
+            sidebar.classList.contains('active')) {
+            sidebar.classList.remove('active');
+        }
+    });
+}
+
+// Handle window resize
+window.addEventListener('resize', () => {
+    const sidebar = document.querySelector('.sidebar');
+    if (window.innerWidth > 768 && sidebar.classList.contains('active')) {
+        sidebar.classList.remove('active');
+    }
+});
