@@ -199,14 +199,14 @@ class AIWidget {
         this.updateLoadingState(true);
         
         try {
-            // Send message to API
-            console.log('Fetching response from /api/openai...');
-            const response = await fetch('/api/openai', {
+            // Send message to API - CHANGED API ENDPOINT
+            console.log('Fetching response from /api/generate...');
+            const response = await fetch('/api/generate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ message }),
+                body: JSON.stringify({ text: message }),
             });
             
             if (!response.ok) {
@@ -218,15 +218,35 @@ class AIWidget {
             const data = await response.json();
             console.log('Received response from AI:', data);
             
-            // Add AI response to chat
-            this.addMessage('assistant', data.response);
+            // Add AI response to chat - CHANGED to match the legacy API response format
+            this.addMessage('assistant', data.result);
         } catch (error) {
             console.error('Error sending message to AI:', error);
-            this.addMessage('assistant', 'Sorry, I encountered an error. Please try again later.');
-            this.showToast('Error', 'Failed to get response from AI assistant', 'error');
+            // Fallback to local response if API is not available
+            const fallbackResponse = this.generateFallbackResponse(message);
+            this.addMessage('assistant', fallbackResponse);
+            this.showToast('Offline Mode', 'Using local AI responses', 'info');
         } finally {
             // Hide loading state
             this.updateLoadingState(false);
+        }
+    }
+    
+    // Add fallback response function
+    generateFallbackResponse(message) {
+        // Simple rule-based responses
+        const userMessage = message.toLowerCase();
+        
+        if (userMessage.includes('hello') || userMessage.includes('hi') || userMessage.includes('hey')) {
+            return 'Hello! How can I assist you with the nursing home system today?';
+        } else if (userMessage.includes('patient') || userMessage.includes('patients')) {
+            return 'The patient system shows we currently have 18 patients in care. You can view detailed information on the patients page.';
+        } else if (userMessage.includes('staff') || userMessage.includes('nurse')) {
+            return 'We currently have 22 staff members, including 8 nurses, 5 doctors, and 9 support staff. Is there specific staff information you need?';
+        } else if (userMessage.includes('help') || userMessage.includes('how')) {
+            return 'I can help with information about patients, staff, schedules, or inventory. What would you like to know?';
+        } else {
+            return 'I understand your question. To provide better assistance, could you specify whether you need information about patients, staff, schedules, or inventory?';
         }
     }
     

@@ -1161,156 +1161,29 @@ function updateStaffCharts() {
 
 // Update charts for theme changes
 function updateChartsForTheme() {
-    const isDarkMode = document.body.classList.contains('dark-mode');
-    const textColor = isDarkMode ? '#e2e8f0' : '#333333';
-    const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+    const isDark = document.body.classList.contains('dark-mode');
+    const textColor = isDark ? '#e2e8f0' : '#333333';
+    const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
     
-    // Update role distribution chart
-    if (window.roleDistributionChart && typeof window.roleDistributionChart.destroy === 'function') {
-        window.roleDistributionChart.destroy();
-    }
+    if (window.roleDistributionChart) updateChartColors(window.roleDistributionChart, textColor, gridColor);
+    if (window.sicknessChart) updateChartColors(window.sicknessChart, textColor, gridColor);
+    if (window.staffAttendanceChart) updateChartColors(window.staffAttendanceChart, textColor, gridColor);
     
-    window.roleDistributionChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: labels,
-            datasets: [{
-                data: data,
-                backgroundColor: backgroundColors.slice(0, labels.length),
-                borderWidth: 0,
-                borderRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            aspectRatio: 2,
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: {
-                        color: textColor,
-                        font: {
-                            size: 12
-                        },
-                        padding: 20
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.label + ': ' + context.raw + ' (' + 
-                                Math.round((context.raw / staffData.length) * 100) + '%)';
-                        }
-                    }
-                }
-            }
+    createRoleDistributionChart();
+    createSicknessChart();
+}
+
+function updateChartColors(chart, textColor, gridColor) {
+    if (!chart || !chart.options) return;
+    if (chart.options.plugins?.legend) chart.options.plugins.legend.labels.color = textColor;
+    if (chart.options.scales) {
+        for (const key in chart.options.scales) {
+            const s = chart.options.scales[key];
+            if (s.ticks) s.ticks.color = textColor;
+            if (s.grid) s.grid.color = gridColor;
         }
-    });
-    
-    // Update sickness chart
-    if (window.sicknessChart && typeof window.sicknessChart.destroy === 'function') {
-        window.sicknessChart.destroy();
     }
-    
-    window.sicknessChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: days,
-            datasets: [{
-                label: 'Fjöldi veikinda',
-                data: sicknessByDay,
-                backgroundColor: '#e71d36',
-                borderWidth: 0,
-                borderRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            aspectRatio: 2,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        precision: 0,
-                        color: textColor
-                    },
-                    grid: {
-                        color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-                    }
-                },
-                x: {
-                    ticks: {
-                        color: textColor
-                    },
-                    grid: {
-                        display: false
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    labels: {
-                        color: textColor
-                    }
-                }
-            }
-        }
-    });
-    
-    // Update staff attendance chart if visible
-    if (window.staffAttendanceChart && typeof window.staffAttendanceChart.destroy === 'function') {
-        window.staffAttendanceChart.destroy();
-    }
-    
-    window.staffAttendanceChart = new Chart(ctx, {
-        type: 'bar',
-        data: attendanceData,
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        callback: function(value) {
-                            return value + '%';
-                        },
-                        color: textColor
-                    },
-                    grid: {
-                        color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-                    }
-                },
-                x: {
-                    ticks: {
-                        color: textColor
-                    },
-                    grid: {
-                        display: false
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    labels: {
-                        color: textColor
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': ' + context.parsed.y + '%';
-                        }
-                    }
-                }
-            }
-        }
-    });
+    chart.update();
 }
 
 // Initialize modal handlers

@@ -3,6 +3,22 @@
     padding: 2rem;
 }
 
+/* Fix for chart container overflow */
+.chart-container {
+    overflow: hidden;
+    height: 300px;
+}
+
+/* Fix for table responsiveness */
+.table-container {
+    overflow-x: auto;
+}
+
+/* Fix for avatars not loading */
+.patient-avatar img[src=""], .staff-avatar img[src=""] {
+    content: url("https://api.dicebear.com/7.x/avataaars/svg?seed=fallback");
+}
+
 .staff-header {
     display: flex;
     justify-content: space-between;

@@ -10,6 +10,10 @@
  * - Charts and visualizations
  */
 
+// Make patientsData available globally
+window.patientsData = patientsData;
+window.filteredPatients = filteredPatients;
+
 // Initialize when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', function() {
     initializePage();

@@ -1236,5 +1236,34 @@
     <script src="/assets/scripts/patients.js" defer></script>
     <script src="/assets/scripts/charts.js" defer></script>
     <script src="/assets/scripts/ai-widget.js" defer></script>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if patientsData exists (from patients.js)
+        if (typeof patientsData !== 'undefined') {
+            console.log("Patient data loaded, initializing page...");
+            
+            // Initialize page components
+            initializePage();
+            initializePatientData();
+            initializeCharts();
+            initializeAIAssistant();
+            setupEventListeners();
+            initializeScrollToTop();
+            
+            // Set initial view mode
+            setViewMode('card');
+        } else {
+            console.error("Patient data not loaded correctly!");
+            document.querySelector('.patients-container').innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Error loading patient data</h3>
+                    <p>Please check the console for more information.</p>
+                </div>
+            `;
+        }
+    });
+    </script>
 </body>
 </html>
