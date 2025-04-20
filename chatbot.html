@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NurseCare AI Chatbot - Specialist medical assistant for healthcare professionals">
+    <title>Spjallforrit | NurseCare AI</title>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Base styles -->
+    <link rel="stylesheet" href="assets/styles.css">
+    
+    <!-- Chatbot CSS -->
+    <link rel="stylesheet" href="assets/chatbot.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <img src="assets/logo.png" alt="NurseCare AI Logo" onerror="this.src='https://placehold.co/40x40?text=NC'">
+                <h1>NurseCare AI</h1>
+            </div>
+            <div class="header-actions">
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </button>
+                <div class="notifications">
+                    <button id="notifications-btn" class="notifications-btn" aria-label="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                    <div id="notifications-menu" class="dropdown-menu" aria-hidden="true">
+                        <div class="dropdown-header">
+                            <h3>Tilkynningar</h3>
+                            <button class="clear-all">Hreinsa allt</button>
+                        </div>
+                        <div class="dropdown-body">
+                            <div class="notification-item unread">
+                                <div class="notification-icon">
+                                    <i class="fas fa-user-injured"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <p>Jón Jónsson er með hækkaðan hita</p>
+                                    <span class="notification-time">2 klst síðan</span>
+                                </div>
+                            </div>
+                            <div class="notification-item unread">
+                                <div class="notification-icon">
+                                    <i class="fas fa-pills"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <p>Lyfjaskammtur fyrir Önnu Guðmundsdóttur er tilbúinn</p>
+                                    <span class="notification-time">5 klst síðan</span>
+                                </div>
+                            </div>
+                            <div class="notification-item">
+                                <div class="notification-icon">
+                                    <i class="fas fa-notes-medical"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <p>Nýtt læknismót bætt við fyrir Sigríði Jónsdóttur</p>
+                                    <span class="notification-time">Í gær</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile">
+                    <button id="profile-btn" class="profile-btn" aria-label="User profile">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=anna" alt="Profile Avatar for Anna">
+                    </button>
+                    <div id="profile-menu" class="dropdown-menu" aria-hidden="true">
+                        <div class="dropdown-header">
+                            <h3>Anna Sigurðardóttir</h3>
+                            <span>Vaktstjóri</span>
+                        </div>
+                        <div class="dropdown-body">
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-user"></i>
+                                <span>Mínar síður</span>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-cog"></i>
+                                <span>Stillingar</span>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Útskrá</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <button id="toggle-sidebar" class="toggle-btn" aria-label="Toggle sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav class="sidebar-nav" aria-label="Main navigation">
+                <ul>
+                    <li class="nav-item">
+                        <a href="index.html">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Mælaborð</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="schedule.html">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Vaktaplan</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="staff.html">
+                            <i class="fas fa-user-nurse"></i>
+                            <span>Starfsfólk</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="patients.html">
+                            <i class="fas fa-user-injured"></i>
+                            <span>Sjúklingar</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="inventory.html">
+                            <i class="fas fa-box"></i>
+                            <span>Birgðir</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="medications.html">
+                            <i class="fas fa-pills"></i>
+                            <span>Lyf</span>
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a href="chatbot.html" aria-current="page">
+                            <i class="fas fa-comments"></i>
+                            <span>Spjallforrit</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="chatbot-container">
+                <div class="chatbot-grid">
+                    <!-- Chat Interface -->
+                    <div class="chat-interface">
+                        <div class="chat-header">
+                            <div class="chat-header-info">
+                                <div class="chat-avatar">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="chat-title">
+                                    <h2>NurseCare AI Aðstoðarmaður</h2>
+                                    <span class="status">Tiltækt</span>
+                                </div>
+                            </div>
+                            <div class="chat-actions">
+                                <button id="clear-chat" class="btn btn-icon" aria-label="Clear chat">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="chat-messages" id="chat-messages">
+                            <!-- Messages will be added here dynamically -->
+                        </div>
+                        <div class="chat-input-container">
+                            <form id="chat-form" class="chat-form">
+                                <textarea 
+                                    id="chat-input" 
+                                    class="chat-input" 
+                                    placeholder="Skrifaðu skilaboð..." 
+                                    rows="1"
+                                    aria-label="Chat message"
+                                ></textarea>
+                                <button type="submit" id="send-message" class="btn btn-primary" aria-label="Send message">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <div class="quick-actions-header">
+                            <h3>Flýtiaðgerðir</h3>
+                        </div>
+                        <div class="quick-actions-grid">
+                            <button class="quick-action-btn" data-action="patient-status">
+                                <i class="fas fa-user-injured"></i>
+                                <span>Sjúklingar í áhættu</span>
+                            </button>
+                            <button class="quick-action-btn" data-action="medications">
+                                <i class="fas fa-pills"></i>
+                                <span>Lyfjagjafir</span>
+                            </button>
+                            <button class="quick-action-btn" data-action="staff-schedule">
+                                <i class="fas fa-user-nurse"></i>
+                                <span>Vaktaskiptingar</span>
+                            </button>
+                            <button class="quick-action-btn" data-action="inventory">
+                                <i class="fas fa-box"></i>
+                                <span>Birgðastaða</span>
+                            </button>
+                        </div>
+
+                        <!-- Recent Conversations -->
+                        <div class="recent-conversations">
+                            <h3>Nýleg samtöl</h3>
+                            <div id="recent-conversations" class="conversation-list">
+                                <!-- Recent conversations will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="assets/scripts/chatbot.js"></script>
+</body>
+</html>

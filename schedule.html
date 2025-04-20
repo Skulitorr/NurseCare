@@ -1,0 +1,3030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NurseCare AI Schedule</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== Base Styles ===== */
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --secondary: #f5f5f5;
+            --secondary-dark: #e0e0e0;
+            --danger: #F44336;
+            --warning: #FFC107;
+            --info: #2196F3;
+            --purple: #9C27B0;
+            --blue: #2196F3;
+            --yellow: #FFC107;
+            --text: #333;
+            --text-light: #777;
+            --border: #ddd;
+            --bg: #f9f9f9;
+            --card: white;
+            --shadow: 0 2px 4px rgba(0,0,0,0.1);
+            --header-height: 60px;
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 70px;
+            --transition-speed: 0.3s;
+        }
+
+        /* Dark Mode */
+        .dark-mode {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --secondary: #333;
+            --secondary-dark: #444;
+            --text: #f5f5f5;
+            --text-light: #aaa;
+            --border: #444;
+            --bg: #121212;
+            --card: #1e1e1e;
+            --shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            transition: background-color var(--transition-speed);
+            overflow-x: hidden;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        /* ===== Layout ===== */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== Sidebar Navigation ===== */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--card);
+            border-right: 1px solid var(--border);
+            transition: width var(--transition-speed);
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar-collapsed .sidebar {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        .sidebar-header {
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1.2rem;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sidebar-collapsed .logo-text {
+            display: none;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: background-color var(--transition-speed);
+        }
+
+        .toggle-btn:hover {
+            background-color: var(--secondary);
+        }
+
+        .sidebar-menu {
+            padding: 1rem 0;
+            overflow-y: auto;
+            height: calc(100% - var(--header-height) - 50px);
+        }
+
+        .menu-item {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text);
+            cursor: pointer;
+            transition: background-color var(--transition-speed);
+            position: relative;
+        }
+
+        .menu-item:hover {
+            background-color: var(--secondary);
+        }
+
+        .menu-item.active {
+            background-color: var(--secondary);
+            border-left: 3px solid var(--primary);
+        }
+
+        .sidebar-collapsed .menu-text {
+            display: none;
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .sidebar-collapsed .theme-text {
+            display: none;
+        }
+
+        /* ===== Main Content ===== */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: margin-left var(--transition-speed);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-collapsed .main-content {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        /* ===== Header ===== */
+        .header {
+            height: var(--header-height);
+            background-color: var(--card);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1rem;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .page-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-actions .btn {
+            padding: 0.5rem;
+            background: none;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: background-color var(--transition-speed);
+        }
+
+        .header-actions .btn:hover {
+            background-color: var(--secondary);
+        }
+
+        .badge {
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            transition: background-color var(--transition-speed);
+        }
+
+        .user-profile:hover {
+            background-color: var(--secondary);
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        .user-info {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .user-info {
+                display: block;
+            }
+        }
+
+        /* ===== Dropdown ===== */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--card);
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-width: 200px;
+            z-index: 100;
+            display: none;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+            animation: fadeIn 0.2s;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: background-color var(--transition-speed);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--secondary);
+        }
+
+        .dropdown-divider {
+            border-top: 1px solid var(--border);
+            margin: 0.5rem 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== Content Container ===== */
+        .content-container {
+            padding: 1rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== Action Bar ===== */
+        .action-bar {
+            background-color: var(--card);
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filters {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* ===== Button Styles ===== */
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            background-color: var(--secondary);
+            color: var(--text);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-info {
+            background-color: var(--info);
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        .btn-purple {
+            background-color: var(--purple);
+            color: white;
+        }
+
+        /* Select dropdown styling */
+        .select {
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background-color: var(--card);
+            color: var(--text);
+            min-width: 150px;
+        }
+
+        /* ===== Schedule Container ===== */
+        .schedule-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 1rem;
+            flex: 1;
+            min-height: 500px;
+        }
+
+        /* ===== Staff Panel ===== */
+        .staff-panel {
+            background-color: var(--card);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-size: 1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .panel-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .filter-dropdown {
+            position: relative;
+        }
+
+        .staff-filter-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--card);
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-width: 200px;
+            z-index: 100;
+            display: none;
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+        }
+
+        .staff-filter-menu.active {
+            display: block;
+            animation: fadeIn 0.2s;
+        }
+
+        .filter-group {
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-group-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .staff-status-legend {
+            padding: 0.5rem 1rem;
+            background-color: var(--secondary);
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.8rem;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .status-dot.available {
+            background-color: var(--primary);
+        }
+
+        .status-dot.busy {
+            background-color: var(--warning);
+        }
+
+        .status-dot.unavailable {
+            background-color: var(--text-light);
+        }
+
+        .status-dot.sick {
+            background-color: var(--danger);
+        }
+
+        .staff-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .staff-list.grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .staff-item {
+            background-color: var(--card);
+            border-radius: 6px;
+            padding: 0.75rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            box-shadow: var(--shadow);
+            cursor: grab;
+            border-left: 3px solid var(--primary);
+            transition: all 0.2s;
+        }
+
+        .staff-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .staff-list.grid-view .staff-item {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .staff-avatar {
+            position: relative;
+        }
+
+        .staff-avatar img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--card);
+        }
+
+        .staff-list.grid-view .staff-avatar img {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-indicator {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid var(--card);
+        }
+
+        .status-indicator.available {
+            background-color: var(--primary);
+        }
+
+        .status-indicator.busy {
+            background-color: var(--warning);
+        }
+
+        .status-indicator.unavailable {
+            background-color: var(--text-light);
+        }
+
+        .status-indicator.sick {
+            background-color: var(--danger);
+        }
+
+        .staff-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .staff-name {
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .staff-role {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .staff-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+        }
+
+        .staff-list.grid-view .staff-meta {
+            flex-direction: column;
+            gap: 0.25rem;
+            align-items: center;
+        }
+
+        .shift-badges {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .shift-badge {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 8px;
+        }
+
+        .hours-badge {
+            color: var(--text-light);
+        }
+
+        .hours-badge.warning {
+            color: var(--warning);
+            font-weight: bold;
+        }
+
+        .panel-footer {
+            padding: 0.75rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* ===== Schedule Grid ===== */
+        .schedule-grid-panel {
+            background-color: var(--card);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .schedule-grid-wrapper {
+            flex: 1;
+            overflow: auto;
+            padding: 0.75rem;
+        }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: auto repeat(7, 1fr);
+            gap: 0.5rem;
+            min-width: 700px;
+        }
+
+        .grid-header {
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+            font-weight: 600;
+            background-color: var(--secondary);
+            border-radius: 6px;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .day-full {
+            display: block;
+        }
+
+        .day-short {
+            display: none;
+        }
+
+        .grid-shift-label {
+            padding: 0.75rem 0.5rem;
+            background-color: var(--secondary);
+            border-radius: 6px;
+            font-weight: 600;
+            position: sticky;
+            left: 0;
+            z-index: 4;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .shift-label-content {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .shift-time {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            font-weight: normal;
+        }
+
+        .grid-cell {
+            min-height: 100px;
+            background-color: var(--secondary);
+            border-radius: 6px;
+            padding: 0.5rem;
+            border: 2px dashed var(--border);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .grid-cell.dragover {
+            background-color: rgba(76, 175, 80, 0.1);
+            border-color: var(--primary);
+            transform: scale(1.02);
+        }
+
+        .grid-cell.has-assignments {
+            border-style: solid;
+            background-color: var(--card);
+        }
+
+        .grid-cell.understaffed {
+            border-color: var(--warning);
+        }
+
+        .grid-cell.overstaffed {
+            border-color: var(--info);
+        }
+
+        .grid-cell.well-staffed {
+            border-color: var(--primary);
+        }
+
+        .staff-count-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 20px;
+            height: 20px;
+            background-color: var(--purple);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .cell-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-light);
+            gap: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .assignments-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            overflow-y: auto;
+            max-height: 350px;
+        }
+
+        .staff-assignment {
+            background-color: var(--card);
+            border-radius: 6px;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow);
+            position: relative;
+            transition: transform 0.2s;
+            border-left: 3px solid var(--primary);
+        }
+
+        .staff-assignment:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+
+        .assignment-avatar img {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+
+        .assignment-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .assignment-name {
+            font-weight: 600;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .assignment-role {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .remove-assignment {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.2s;
+            font-size: 12px;
+        }
+
+        .staff-assignment:hover .remove-assignment {
+            opacity: 1;
+        }
+
+        .remove-assignment:hover {
+            color: var(--danger);
+            background-color: rgba(244, 67, 54, 0.1);
+        }
+
+        .cell-controls {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 0.5rem;
+        }
+
+        .cell-add-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--secondary);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: all 0.2s;
+        }
+
+        .cell-add-btn:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* ===== Schedule Info Panel ===== */
+        .schedule-info-panel {
+            padding: 0.75rem;
+            border-top: 1px solid var(--border);
+            background-color: var(--secondary);
+        }
+
+        .shift-legend {
+            margin-bottom: 0.75rem;
+        }
+
+        .legend-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .shift-types {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .shift-type {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .shift-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .shift-type.morning .shift-color {
+            background-color: var(--blue);
+        }
+
+        .shift-type.evening .shift-color {
+            background-color: var(--yellow);
+        }
+
+        .shift-type.night .shift-color {
+            background-color: var(--purple);
+        }
+
+        .schedule-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+
+        .summary-item {
+            text-align: center;
+            padding: 0.5rem;
+            background-color: var(--card);
+            border-radius: 6px;
+        }
+
+        .summary-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-bottom: 0.25rem;
+        }
+
+        .summary-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .summary-value.low {
+            color: var(--danger);
+        }
+
+        .summary-value.medium {
+            color: var(--warning);
+        }
+
+        .summary-value.high {
+            color: var(--primary);
+        }
+
+        /* ===== Toast Notifications ===== */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-width: 300px;
+        }
+
+        .toast {
+            background-color: var(--card);
+            border-radius: 6px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-left: 4px solid var(--primary);
+            animation: slideIn 0.3s;
+        }
+
+        .toast.success {
+            border-left-color: var(--primary);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning);
+        }
+
+        .toast.info {
+            border-left-color: var(--info);
+        }
+
+        .toast-icon {
+            font-size: 1.2rem;
+        }
+
+        .toast.success .toast-icon {
+            color: var(--primary);
+        }
+
+        .toast.error .toast-icon {
+            color: var(--danger);
+        }
+
+        .toast.warning .toast-icon {
+            color: var(--warning);
+        }
+
+        .toast.info .toast-icon {
+            color: var(--info);
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .toast-message {
+            font-size: 0.9rem;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0.25rem;
+            align-self: flex-start;
+        }
+
+        .toast-close:hover {
+            color: var(--text);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* ===== Modals ===== */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
+        }
+
+        .modal-backdrop.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background-color: var(--card);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+
+        .modal-backdrop.active .modal {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .modal-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal-body {
+            padding: 1rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background-color: var(--card);
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* ===== AI Assistant Button ===== */
+        .ai-assistant-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--purple);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 90;
+            transition: all 0.2s;
+        }
+
+        .ai-assistant-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ===== Loading Overlay ===== */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--card);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid var(--secondary);
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .loading-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== Responsive Styles ===== */
+        @media (max-width: 1024px) {
+            .schedule-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+                gap: 1rem;
+            }
+
+            .staff-panel {
+                max-height: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 1000;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .sidebar-collapsed .main-content {
+                margin-left: 0;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .action-bar {
+                flex-direction: column;
+            }
+
+            .action-buttons, .filters {
+                width: 100%;
+            }
+
+            .day-full {
+                display: none;
+            }
+
+            .day-short {
+                display: block;
+            }
+
+            .schedule-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container" id="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-hospital"></i>
+                    <span class="logo-text">NurseCare AI</span>
+                </div>
+                <button class="toggle-btn" id="toggle-sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li class="menu-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span class="menu-text">Dashboard</span>
+                    </li>
+                    <li class="menu-item active">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span class="menu-text">Schedule</span>
+                    </li>
+                    <li class="menu-item">
+                        <i class="fas fa-user-nurse"></i>
+                        <span class="menu-text">Staff</span>
+                    </li>
+                    <li class="menu-item">
+                        <i class="fas fa-user-injured"></i>
+                        <span class="menu-text">Patients</span>
+                    </li>
+                    <li class="menu-item">
+                        <i class="fas fa-pills"></i>
+                        <span class="menu-text">Medications</span>
+                    </li>
+                    <li class="menu-item">
+                        <i class="fas fa-boxes"></i>
+                        <span class="menu-text">Inventory</span>
+                    </li>
+                    <li class="menu-item">
+                        <i class="fas fa-cog"></i>
+                        <span class="menu-text">Settings</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-footer">
+                <div class="theme-toggle" id="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                    <span class="theme-text">Dark Mode</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="mobile-toggle" id="mobile-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="page-title">Schedule Management</div>
+                    <div class="current-date" id="current-date">Monday, April 19, 2025</div>
+                </div>
+                <div class="header-actions">
+                    <div class="dropdown" id="notifications-dropdown">
+                        <button class="btn">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge">3</span>
+                        </button>
+                        <div class="dropdown-menu" id="notifications-menu">
+                            <div class="dropdown-item">
+                                <i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i>
+                                <div>
+                                    <div>Staff shortage detected</div>
+                                    <small style="color: var(--text-light);">5 minutes ago</small>
+                                </div>
+                            </div>
+                            <div class="dropdown-item">
+                                <i class="fas fa-exchange-alt" style="color: var(--info);"></i>
+                                <div>
+                                    <div>Shift swap request</div>
+                                    <small style="color: var(--text-light);">30 minutes ago</small>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item">
+                                <i class="fas fa-check-circle" style="color: var(--primary);"></i>
+                                <div>
+                                    <div>Schedule saved</div>
+                                    <small style="color: var(--text-light);">1 hour ago</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown" id="user-dropdown">
+                        <div class="user-profile">
+                            <img class="avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin" alt="Admin">
+                            <div class="user-info">
+                                <div style="font-weight: 500;">Admin User</div>
+                                <small style="color: var(--text-light);">Administrator</small>
+                            </div>
+                            <i class="fas fa-chevron-down" style="font-size: 12px; color: var(--text-light);"></i>
+                        </div>
+                        <div class="dropdown-menu" id="user-menu">
+                            <div class="dropdown-item">
+                                <i class="fas fa-user"></i>
+                                <span>Profile</span>
+                            </div>
+                            <div class="dropdown-item">
+                                <i class="fas fa-cog"></i>
+                                <span>Settings</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Container -->
+            <div class="content-container">
+                <!-- Action Bar -->
+                <div class="action-bar">
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="ai-schedule-btn">
+                            <i class="fas fa-robot"></i> AI Schedule
+                        </button>
+                        <button class="btn btn-info" id="check-conflicts-btn">
+                            <i class="fas fa-exclamation-triangle"></i> Check Conflicts
+                        </button>
+                        <button class="btn btn-danger" id="clear-btn">
+                            <i class="fas fa-trash"></i> Clear All
+                        </button>
+                    </div>
+                    <div class="filters">
+                        <select class="select" id="department-filter">
+                            <option value="all">All Departments</option>
+                            <option value="A-álma">A-álma</option>
+                            <option value="B-álma">B-álma</option>
+                            <option value="C-álma">C-álma</option>
+                        </select>
+                        <select class="select" id="week-filter">
+                            <option value="current">Current Week</option>
+                            <option value="next">Next Week</option>
+                            <option value="custom">Custom...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Schedule Container -->
+                <div class="schedule-container">
+                    <!-- Staff Panel -->
+                    <div class="staff-panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <i class="fas fa-user-nurse"></i> Staff
+                            </div>
+                            <div class="panel-controls">
+                                <button class="btn" id="view-toggle" title="Toggle View">
+                                    <i class="fas fa-th"></i>
+                                </button>
+                                <div class="filter-dropdown">
+                                    <button class="btn" id="staff-filter-btn" title="Filter Options">
+                                        <i class="fas fa-filter"></i>
+                                    </button>
+                                    <div class="staff-filter-menu" id="staff-filter-menu">
+                                        <div class="filter-group">
+                                            <div class="filter-group-title">Role</div>
+                                            <div class="filter-options">
+                                                <div class="filter-option">
+                                                    <input type="checkbox" id="filter-nurse" checked>
+                                                    <label for="filter-nurse">Nurses</label>
+                                                </div>
+                                                <div class="filter-option">
+                                                    <input type="checkbox" id="filter-assistant" checked>
+                                                    <label for="filter-assistant">Assistants</label>
+                                                </div>
+                                                <div class="filter-option">
+                                                    <input type="checkbox" id="filter-other" checked>
+                                                    <label for="filter-other">Other Staff</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="filter-group">
+                                            <div class="filter-group-title">Status</div>
+                                            <div class="filter-options">
+                                                <div class="filter-option">
+                                                    <input type="checkbox" id="filter-available" checked>
+                                                    <label for="filter-available">Available</label>
+                                                </div>
+                                                <div class="filter-option">
+                                                    <input type="checkbox" id="filter-busy" checked>
+                                                    <label for="filter-busy">Busy</label>
+                                                </div>
+                                                <div class="filter-option">
+                                                    <input type="checkbox" id="filter-unavailable">
+                                                    <label for="filter-unavailable">Unavailable</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="btn" id="add-staff-btn" title="Add Staff">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="staff-status-legend">
+                            <div class="status-item">
+                                <span class="status-dot available"></span>
+                                <span>Available</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot busy"></span>
+                                <span>Busy</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot unavailable"></span>
+                                <span>Unavailable</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot sick"></span>
+                                <span>Sick</span>
+                            </div>
+                        </div>
+
+                        <div class="staff-list" id="staff-list">
+                            <!-- Staff items will be populated by JavaScript -->
+                        </div>
+
+                        <div class="panel-footer">
+                            <button class="btn btn-primary" id="add-staff-btn-footer">
+                                <i class="fas fa-user-plus"></i> Add Staff
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Schedule Grid -->
+                    <div class="schedule-grid-panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <i class="fas fa-calendar-alt"></i> Weekly Schedule
+                            </div>
+                            <div class="panel-controls">
+                                <button class="btn" id="reset-btn" title="Reset Schedule">
+                                    <i class="fas fa-undo"></i>
+                                </button>
+                                <button class="btn" id="save-btn" title="Save Schedule">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="schedule-grid-wrapper">
+                            <div class="schedule-grid" id="schedule-grid">
+                                <!-- Schedule grid will be generated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <div class="schedule-info-panel">
+                            <div class="shift-legend">
+                                <div class="legend-title">Shift Types</div>
+                                <div class="shift-types">
+                                    <div class="shift-type morning">
+                                        <span class="shift-color"></span>
+                                        <span>Morning (07:00-15:00)</span>
+                                    </div>
+                                    <div class="shift-type evening">
+                                        <span class="shift-color"></span>
+                                        <span>Evening (15:00-23:00)</span>
+                                    </div>
+                                    <div class="shift-type night">
+                                        <span class="shift-color"></span>
+                                        <span>Night (23:00-07:00)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="schedule-summary">
+                                <div class="summary-item">
+                                    <div class="summary-label">Total Shifts</div>
+                                    <div class="summary-value" id="total-shifts">0</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">Staff Assigned</div>
+                                    <div class="summary-value" id="staff-assigned">0/0</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">Coverage</div>
+                                    <div class="summary-value" id="coverage-percentage">0%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- AI Assistant Button -->
+        <div class="ai-assistant-btn" id="ai-assistant-btn">
+            <i class="fas fa-robot"></i>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loader">
+            <div class="spinner"></div>
+            <div class="loading-text">Generating AI Schedule...</div>
+        </div>
+    </div>
+
+    <script>
+        // ===== CONSTANTS =====
+        const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const DAYS_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        
+        const SHIFT_TYPES = {
+            MORNING: { id: 'morning', label: 'Morning Shift', time: '07:00-15:00', icon: 'sun', color: '#2196F3' },
+            EVENING: { id: 'evening', label: 'Evening Shift', time: '15:00-23:00', icon: 'moon', color: '#FFC107' },
+            NIGHT: { id: 'night', label: 'Night Shift', time: '23:00-07:00', icon: 'star', color: '#9C27B0' }
+        };
+
+        // ===== STATE =====
+        let staffList = [
+            {
+                id: 1,
+                name: 'Anna Björg',
+                role: 'Nurse',
+                department: 'A-álma',
+                status: 'available',
+                shifts: ['morning', 'evening'],
+                color: '#4CAF50',
+                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=nurse1',
+                hoursWorked: 24
+            },
+            {
+                id: 2,
+                name: 'Jóhann Pétur',
+                role: 'Nurse',
+                department: 'B-álma',
+                status: 'available',
+                shifts: ['morning', 'night'],
+                color: '#2196F3',
+                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=nurse2',
+                hoursWorked: 16
+            },
+            {
+                id: 3,
+                name: 'Guðrún Jóna',
+                role: 'Assistant',
+                department: 'A-álma',
+                status: 'available',
+                shifts: ['evening', 'night'],
+                color: '#9C27B0',
+                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=nurse3',
+                hoursWorked: 8
+            },
+            {
+                id: 4,
+                name: 'Kristín Helga',
+                role: 'Assistant',
+                department: 'C-álma',
+                status: 'busy',
+                shifts: ['morning', 'evening', 'night'],
+                color: '#FF9800',
+                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=nurse4',
+                hoursWorked: 32
+            },
+            {
+                id: 5,
+                name: 'Sigurður Arnar',
+                role: 'Manager',
+                department: 'B-álma',
+                status: 'available',
+                shifts: ['morning', 'evening'],
+                color: '#E91E63',
+                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=nurse5',
+                hoursWorked: 16
+            },
+            {
+                id: 6,
+                name: 'Þórunn Dóra',
+                role: 'Manager',
+                department: 'A-álma',
+                status: 'unavailable',
+                shifts: ['morning'],
+                color: '#607D8B',
+                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=nurse6',
+                hoursWorked: 8
+            }
+        ];
+
+        let scheduleData = {
+            '0-morning': [1, 2],
+            '0-evening': [3],
+            '1-morning': [2],
+            '2-evening': [1, 3],
+            '3-morning': [1, 2],
+            '4-evening': [3],
+            '5-night': [4],
+            '6-morning': [2]
+        };
+
+        let isStaffGridView = false;
+        let departmentFilter = 'all';
+        let isSidebarCollapsed = false;
+        let isLoading = false;
+
+        // ===== INITIALIZATION =====
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCurrentDate();
+            renderStaffList();
+            renderScheduleGrid();
+            setupEventListeners();
+            updateScheduleStats();
+            applyThemeSettings();
+            
+            // Show welcome toast
+            showToast('success', 'Schedule Loaded', 'Welcome to NurseCare AI Scheduling System');
+        });
+
+        // ===== EVENT LISTENERS =====
+        function setupEventListeners() {
+            // Sidebar toggle
+            const toggleSidebarBtn = document.getElementById('toggle-sidebar');
+            if (toggleSidebarBtn) {
+                toggleSidebarBtn.addEventListener('click', toggleSidebar);
+            }
+            
+            // Mobile toggle
+            const mobileToggleBtn = document.getElementById('mobile-toggle');
+            if (mobileToggleBtn) {
+                mobileToggleBtn.addEventListener('click', toggleMobileSidebar);
+            }
+            
+            // Theme toggle
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', toggleTheme);
+            }
+            
+            // Dropdowns
+            setupDropdowns();
+            
+            // Department filter
+            const departmentFilterSelect = document.getElementById('department-filter');
+            if (departmentFilterSelect) {
+                departmentFilterSelect.addEventListener('change', function() {
+                    departmentFilter = this.value;
+                    renderStaffList();
+                });
+            }
+            
+            // Staff view toggle
+            const viewToggleBtn = document.getElementById('view-toggle');
+            if (viewToggleBtn) {
+                viewToggleBtn.addEventListener('click', toggleStaffView);
+            }
+            
+            // Staff filter button
+            const staffFilterBtn = document.getElementById('staff-filter-btn');
+            const staffFilterMenu = document.getElementById('staff-filter-menu');
+            if (staffFilterBtn && staffFilterMenu) {
+                staffFilterBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    staffFilterMenu.classList.toggle('active');
+                });
+                
+                document.addEventListener('click', function(e) {
+                    if (!staffFilterMenu.contains(e.target) && e.target !== staffFilterBtn) {
+                        staffFilterMenu.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Add staff buttons
+            const addStaffBtns = document.querySelectorAll('#add-staff-btn, #add-staff-btn-footer');
+            addStaffBtns.forEach(btn => {
+                btn.addEventListener('click', showAddStaffModal);
+            });
+            
+            // Action buttons
+            const aiScheduleBtn = document.getElementById('ai-schedule-btn');
+            if (aiScheduleBtn) {
+                aiScheduleBtn.addEventListener('click', generateAISchedule);
+            }
+            
+            const checkConflictsBtn = document.getElementById('check-conflicts-btn');
+            if (checkConflictsBtn) {
+                checkConflictsBtn.addEventListener('click', checkScheduleConflicts);
+            }
+            
+            const clearBtn = document.getElementById('clear-btn');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', clearSchedule);
+            }
+            
+            const saveBtn = document.getElementById('save-btn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', saveSchedule);
+            }
+            
+            const resetBtn = document.getElementById('reset-btn');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', resetSchedule);
+            }
+            
+            // AI Assistant button
+            const aiAssistantBtn = document.getElementById('ai-assistant-btn');
+            if (aiAssistantBtn) {
+                aiAssistantBtn.addEventListener('click', showAIAssistant);
+            }
+        }
+
+        function setupDropdowns() {
+            // User dropdown
+            const userDropdown = document.getElementById('user-dropdown');
+            const userMenu = document.getElementById('user-menu');
+            
+            if (userDropdown && userMenu) {
+                userDropdown.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userMenu.classList.toggle('active');
+                    
+                    // Close other dropdowns
+                    const notificationsMenu = document.getElementById('notifications-menu');
+                    if (notificationsMenu) {
+                        notificationsMenu.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Notifications dropdown
+            const notificationsDropdown = document.getElementById('notifications-dropdown');
+            const notificationsMenu = document.getElementById('notifications-menu');
+            
+            if (notificationsDropdown && notificationsMenu) {
+                notificationsDropdown.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    notificationsMenu.classList.toggle('active');
+                    
+                    // Close other dropdowns
+                    const userMenu = document.getElementById('user-menu');
+                    if (userMenu) {
+                        userMenu.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                const dropdowns = document.querySelectorAll('.dropdown-menu');
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.remove('active');
+                });
+            });
+        }
+
+        // ===== UI FUNCTIONS =====
+        function updateCurrentDate() {
+            const currentDateEl = document.getElementById('current-date');
+            if (currentDateEl) {
+                const now = new Date();
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                currentDateEl.textContent = now.toLocaleDateString('en-US', options);
+            }
+        }
+
+        function toggleSidebar() {
+            const appContainer = document.getElementById('app-container');
+            if (appContainer) {
+                isSidebarCollapsed = !isSidebarCollapsed;
+                appContainer.classList.toggle('sidebar-collapsed', isSidebarCollapsed);
+                
+                // Update toggle icon
+                const toggleIcon = document.querySelector('#toggle-sidebar i');
+                if (toggleIcon) {
+                    toggleIcon.className = isSidebarCollapsed ? 'fas fa-bars' : 'fas fa-chevron-left';
+                }
+            }
+        }
+
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('active');
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const isDarkMode = body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+            
+            // Update icon
+            const themeIcon = document.querySelector('#theme-toggle i');
+            if (themeIcon) {
+                themeIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+            }
+            
+            // Update text
+            const themeText = document.querySelector('.theme-text');
+            if (themeText) {
+                themeText.textContent = isDarkMode ? 'Light Mode' : 'Dark Mode';
+            }
+            
+            showToast('info', isDarkMode ? 'Dark Mode Enabled' : 'Light Mode Enabled', 'Theme changed successfully');
+        }
+
+        function applyThemeSettings() {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                
+                // Update icon
+                const themeIcon = document.querySelector('#theme-toggle i');
+                if (themeIcon) {
+                    themeIcon.className = 'fas fa-sun';
+                }
+                
+                // Update text
+                const themeText = document.querySelector('.theme-text');
+                if (themeText) {
+                    themeText.textContent = 'Light Mode';
+                }
+            }
+        }
+
+        function toggleStaffView() {
+            const staffList = document.getElementById('staff-list');
+            if (staffList) {
+                isStaffGridView = !isStaffGridView;
+                staffList.classList.toggle('grid-view', isStaffGridView);
+                
+                // Update toggle icon
+                const viewToggleIcon = document.querySelector('#view-toggle i');
+                if (viewToggleIcon) {
+                    viewToggleIcon.className = isStaffGridView ? 'fas fa-list' : 'fas fa-th';
+                }
+            }
+        }
+
+        // ===== RENDERING FUNCTIONS =====
+        function renderStaffList() {
+            const staffListEl = document.getElementById('staff-list');
+            if (!staffListEl) return;
+            
+            staffListEl.innerHTML = '';
+            
+            // Filter staff by department
+            const filteredStaff = departmentFilter === 'all' 
+                ? staffList 
+                : staffList.filter(staff => staff.department === departmentFilter);
+            
+            filteredStaff.forEach(staff => {
+                const staffItem = document.createElement('div');
+                staffItem.className = 'staff-item';
+                staffItem.draggable = true;
+                staffItem.dataset.id = staff.id;
+                staffItem.style.borderLeftColor = staff.color;
+                
+                // Create shift badges HTML
+                const shiftBadges = staff.shifts.map(shift => {
+                    const shiftType = Object.values(SHIFT_TYPES).find(t => t.id === shift);
+                    return `<span class="shift-badge" style="background-color:${shiftType.color}" title="${shiftType.label}">
+                                <i class="fas fa-${shiftType.icon}"></i>
+                            </span>`;
+                }).join('');
+                
+                staffItem.innerHTML = `
+                    <div class="staff-avatar">
+                        <img src="${staff.avatar}" alt="${staff.name}">
+                        <span class="status-indicator ${staff.status}"></span>
+                    </div>
+                    <div class="staff-info">
+                        <div class="staff-name">${staff.name}</div>
+                        <div class="staff-role">${staff.role}</div>
+                        <div class="staff-meta">
+                            <div class="shift-badges">${shiftBadges}</div>
+                            <div class="hours-badge ${staff.hoursWorked > 32 ? 'warning' : ''}">${staff.hoursWorked}h</div>
+                        </div>
+                    </div>
+                `;
+                
+                // Add drag event listeners
+                staffItem.addEventListener('dragstart', handleDragStart);
+                staffItem.addEventListener('dragend', handleDragEnd);
+                
+                // Add click handler
+                staffItem.addEventListener('click', () => showStaffDetails(staff.id));
+                
+                staffListEl.appendChild(staffItem);
+            });
+        }
+
+        function renderScheduleGrid() {
+            const scheduleGridEl = document.getElementById('schedule-grid');
+            if (!scheduleGridEl) return;
+            
+            scheduleGridEl.innerHTML = '';
+            
+            // Add empty top-left corner cell
+            const cornerCell = document.createElement('div');
+            cornerCell.className = 'grid-header';
+            cornerCell.style.visibility = 'hidden';
+            scheduleGridEl.appendChild(cornerCell);
+            
+            // Add day headers
+            DAYS_OF_WEEK.forEach((day, index) => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'grid-header';
+                dayHeader.innerHTML = `
+                    <span class="day-full">${day}</span>
+                    <span class="day-short">${DAYS_SHORT[index]}</span>
+                `;
+                scheduleGridEl.appendChild(dayHeader);
+            });
+            
+            // Add shift rows
+            Object.values(SHIFT_TYPES).forEach(shift => {
+                // Add shift label
+                const shiftLabel = document.createElement('div');
+                shiftLabel.className = 'grid-shift-label';
+                shiftLabel.style.borderLeftColor = shift.color;
+                shiftLabel.innerHTML = `
+                    <div class="shift-label-content">
+                        <i class="fas fa-${shift.icon}"></i>
+                        <span>${shift.label}</span>
+                    </div>
+                    <div class="shift-time">${shift.time}</div>
+                `;
+                scheduleGridEl.appendChild(shiftLabel);
+                
+                // Add cells for each day
+                DAYS_OF_WEEK.forEach((_, dayIndex) => {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell dropzone';
+                    cell.dataset.day = dayIndex;
+                    cell.dataset.shift = shift.id;
+                    
+                    // Check if has assignments
+                    const key = `${dayIndex}-${shift.id}`;
+                    const staffIds = scheduleData[key] || [];
+                    const hasAssignments = staffIds.length > 0;
+                    
+                    if (hasAssignments) {
+                        cell.classList.add('has-assignments');
+                        
+                        // Add staff count badge
+                        const countBadge = document.createElement('div');
+                        countBadge.className = 'staff-count-badge';
+                        countBadge.textContent = staffIds.length;
+                        cell.appendChild(countBadge);
+                        
+                        // Add status classes based on number of staff
+                        const recommendedStaff = getRecommendedStaffCount(dayIndex, shift.id);
+                        if (staffIds.length < recommendedStaff) {
+                            cell.classList.add('understaffed');
+                        } else if (staffIds.length > recommendedStaff) {
+                            cell.classList.add('overstaffed');
+                        } else {
+                            cell.classList.add('well-staffed');
+                        }
+                        
+                        // Add assignments container
+                        const assignmentsContainer = document.createElement('div');
+                        assignmentsContainer.className = 'assignments-container';
+                        
+                        // Add assignments
+                        staffIds.forEach(staffId => {
+                            const staff = staffList.find(s => s.id === staffId);
+                            if (staff) {
+                                const assignment = document.createElement('div');
+                                assignment.className = 'staff-assignment';
+                                assignment.style.borderLeftColor = staff.color;
+                                
+                                assignment.innerHTML = `
+                                    <div class="assignment-avatar">
+                                        <img src="${staff.avatar}" alt="${staff.name}">
+                                    </div>
+                                    <div class="assignment-info">
+                                        <div class="assignment-name">${staff.name}</div>
+                                        <div class="assignment-role">${staff.role}</div>
+                                    </div>
+                                    <button class="remove-assignment" data-staff-id="${staff.id}" data-day="${dayIndex}" data-shift="${shift.id}">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                `;
+                                
+                                assignmentsContainer.appendChild(assignment);
+                            }
+                        });
+                        
+                        cell.appendChild(assignmentsContainer);
+                        
+                        // Add cell controls
+                        const cellControls = document.createElement('div');
+                        cellControls.className = 'cell-controls';
+                        cellControls.innerHTML = `
+                            <button class="cell-add-btn" title="Add staff to shift">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        `;
+                        cell.appendChild(cellControls);
+                    } else {
+                        // Add placeholder for empty cells
+                        const placeholder = document.createElement('div');
+                        placeholder.className = 'cell-placeholder';
+                        placeholder.innerHTML = `
+                            <i class="fas fa-plus"></i>
+                            <span>Drag staff here</span>
+                        `;
+                        cell.appendChild(placeholder);
+                        
+                        // Add cell controls
+                        const cellControls = document.createElement('div');
+                        cellControls.className = 'cell-controls';
+                        cellControls.innerHTML = `
+                            <button class="cell-add-btn" title="Add staff to shift">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        `;
+                        cell.appendChild(cellControls);
+                    }
+                    
+                    // Add drop event listeners
+                    cell.addEventListener('dragover', handleDragOver);
+                    cell.addEventListener('dragenter', handleDragEnter);
+                    cell.addEventListener('dragleave', handleDragLeave);
+                    cell.addEventListener('drop', handleDrop);
+                    
+                    // Add click handler for add button
+                    const addBtn = cell.querySelector('.cell-add-btn');
+                    if (addBtn) {
+                        addBtn.addEventListener('click', () => showAddToShiftModal(dayIndex, shift.id));
+                    }
+                    
+                    scheduleGridEl.appendChild(cell);
+                });
+            });
+            
+            // Add remove button event listeners
+            document.querySelectorAll('.remove-assignment').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const staffId = parseInt(this.dataset.staffId);
+                    const dayIndex = parseInt(this.dataset.day);
+                    const shiftType = this.dataset.shift;
+                    
+                    removeAssignment(staffId, dayIndex, shiftType);
+                });
+            });
+        }
+
+        function updateScheduleStats() {
+            // Count total shifts filled
+            const totalShifts = Object.keys(scheduleData).length;
+            
+            // Count total assigned staff
+            const assignedStaff = new Set();
+            for (const key in scheduleData) {
+                scheduleData[key].forEach(staffId => assignedStaff.add(staffId));
+            }
+            const totalStaffAssigned = assignedStaff.size;
+            
+            // Calculate coverage percentage
+            const totalPossibleShifts = DAYS_OF_WEEK.length * Object.values(SHIFT_TYPES).length;
+            const coveragePercentage = Math.round((totalShifts / totalPossibleShifts) * 100);
+            
+            // Update UI
+            const totalShiftsEl = document.getElementById('total-shifts');
+            if (totalShiftsEl) {
+                totalShiftsEl.textContent = totalShifts;
+            }
+            
+            const staffAssignedEl = document.getElementById('staff-assigned');
+            if (staffAssignedEl) {
+                staffAssignedEl.textContent = `${totalStaffAssigned}/${staffList.length}`;
+            }
+            
+            const coverageEl = document.getElementById('coverage-percentage');
+            if (coverageEl) {
+                coverageEl.textContent = `${coveragePercentage}%`;
+                
+                // Update class based on percentage
+                coverageEl.className = 'summary-value';
+                if (coveragePercentage < 50) {
+                    coverageEl.classList.add('low');
+                } else if (coveragePercentage < 80) {
+                    coverageEl.classList.add('medium');
+                } else {
+                    coverageEl.classList.add('high');
+                }
+            }
+        }
+
+        // ===== DRAG AND DROP HANDLERS =====
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.id);
+            e.dataTransfer.effectAllowed = 'copy';
+            
+            // Add dragging class
+            e.target.classList.add('dragging');
+        }
+
+        function handleDragEnd(e) {
+            // Remove dragging class
+            e.target.classList.remove('dragging');
+            
+            // Remove dragover class from all cells
+            document.querySelectorAll('.dragover').forEach(cell => {
+                cell.classList.remove('dragover');
+            });
+        }
+
+        function handleDragOver(e) {
+            // Prevent default to allow drop
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        }
+
+        function handleDragEnter(e) {
+            const cell = e.target.closest('.grid-cell');
+            if (cell) {
+                cell.classList.add('dragover');
+            }
+        }
+
+        function handleDragLeave(e) {
+            const cell = e.target.closest('.grid-cell');
+            if (cell && !cell.contains(e.relatedTarget)) {
+                cell.classList.remove('dragover');
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            
+            // Remove dragover class
+            const cell = e.target.closest('.grid-cell');
+            if (cell) {
+                cell.classList.remove('dragover');
+            }
+            
+            // Get data
+            const staffId = parseInt(e.dataTransfer.getData('text/plain'));
+            const dayIndex = parseInt(cell.dataset.day);
+            const shiftType = cell.dataset.shift;
+            
+            // Add assignment
+            addAssignment(staffId, dayIndex, shiftType);
+        }
+
+        // ===== SCHEDULE OPERATIONS =====
+        function addAssignment(staffId, dayIndex, shiftType) {
+            const staff = staffList.find(s => s.id === staffId);
+            if (!staff) return;
+            
+            const key = `${dayIndex}-${shiftType}`;
+            
+            // Check if staff can work this shift
+            if (!staff.shifts.includes(shiftType)) {
+                showToast('error', 'Invalid Assignment', `${staff.name} cannot work ${getShiftLabel(shiftType)} shifts`);
+                return;
+            }
+            
+            // Check if staff is available
+            if (staff.status !== 'available') {
+                showToast('error', 'Invalid Assignment', `${staff.name} is not available`);
+                return;
+            }
+            
+            // Initialize if needed
+            if (!scheduleData[key]) {
+                scheduleData[key] = [];
+            }
+            
+            // Check if already assigned
+            if (scheduleData[key].includes(staffId)) {
+                showToast('warning', 'Already Assigned', `${staff.name} is already on this shift`);
+                return;
+            }
+            
+            // Add to schedule
+            scheduleData[key].push(staffId);
+            
+            // Update UI
+            renderScheduleGrid();
+            updateScheduleStats();
+            updateStaffHours();
+            
+            // Show toast
+            showToast('success', 'Assignment Added', `${staff.name} assigned to ${DAYS_SHORT[dayIndex]} ${getShiftLabel(shiftType)}`);
+        }
+
+        function removeAssignment(staffId, dayIndex, shiftType) {
+            const staff = staffList.find(s => s.id === staffId);
+            if (!staff) return;
+            
+            const key = `${dayIndex}-${shiftType}`;
+            
+            // Check if assigned
+            if (!scheduleData[key] || !scheduleData[key].includes(staffId)) {
+                return;
+            }
+            
+            // Remove from schedule
+            scheduleData[key] = scheduleData[key].filter(id => id !== staffId);
+            
+            // Delete key if empty
+            if (scheduleData[key].length === 0) {
+                delete scheduleData[key];
+            }
+            
+            // Update UI
+            renderScheduleGrid();
+            updateScheduleStats();
+            updateStaffHours();
+            
+            // Show toast
+            showToast('info', 'Assignment Removed', `${staff.name} removed from ${DAYS_SHORT[dayIndex]} ${getShiftLabel(shiftType)}`);
+        }
+
+        function getShiftLabel(shiftId) {
+            const shift = Object.values(SHIFT_TYPES).find(s => s.id === shiftId);
+            return shift ? shift.label : 'Unknown Shift';
+        }
+
+        function clearSchedule() {
+            if (confirm('Are you sure you want to clear the entire schedule?')) {
+                scheduleData = {};
+                renderScheduleGrid();
+                updateScheduleStats();
+                updateStaffHours();
+                showToast('info', 'Schedule Cleared', 'All assignments have been removed');
+            }
+        }
+
+        function generateAISchedule() {
+            if (isLoading) return;
+            
+            isLoading = true;
+            const loadingOverlay = document.getElementById('loading-overlay');
+            if (loadingOverlay) {
+                loadingOverlay.classList.add('active');
+            }
+            
+            showToast('info', 'Generating Schedule', 'AI is creating an optimized schedule');
+            
+            // Simulate AI scheduling with a delay
+            setTimeout(() => {
+                try {
+                    // Generate an AI schedule
+                    const aiSchedule = {};
+                    
+                    // For each day and shift type
+                    DAYS_OF_WEEK.forEach((_, dayIndex) => {
+                        Object.values(SHIFT_TYPES).forEach(shift => {
+                            // Get eligible staff for this shift
+                            const eligibleStaff = staffList
+                                .filter(staff => 
+                                    staff.status === 'available' && 
+                                    staff.shifts.includes(shift.id)
+                                )
+                                .sort(() => Math.random() - 0.5); // Shuffle for randomness
+                            
+                            // Determine how many staff we need
+                            const staffNeeded = getRecommendedStaffCount(dayIndex, shift.id);
+                            
+                            // Assign staff
+                            if (eligibleStaff.length > 0) {
+                                const key = `${dayIndex}-${shift.id}`;
+                                aiSchedule[key] = eligibleStaff
+                                    .slice(0, Math.min(staffNeeded, eligibleStaff.length))
+                                    .map(staff => staff.id);
+                            }
+                        });
+                    });
+                    
+                    // Update schedule data
+                    scheduleData = aiSchedule;
+                    
+                    // Update UI
+                    renderScheduleGrid();
+                    updateScheduleStats();
+                    updateStaffHours();
+                    
+                    showToast('success', 'Schedule Generated', 'AI has created an optimized schedule');
+                } catch (error) {
+                    console.error('Error generating schedule:', error);
+                    showToast('error', 'Generation Failed', 'Failed to generate AI schedule');
+                } finally {
+                    // Hide loading overlay
+                    if (loadingOverlay) {
+                        loadingOverlay.classList.remove('active');
+                    }
+                    isLoading = false;
+                }
+            }, 2000);
+        }
+
+        function checkScheduleConflicts() {
+            showToast('info', 'Checking Conflicts', 'Analyzing schedule for potential issues...');
+            
+            // Simulate checking conflicts with a delay
+            setTimeout(() => {
+                // Count unassigned shifts
+                let unassignedCount = 0;
+                const totalShifts = DAYS_OF_WEEK.length * Object.values(SHIFT_TYPES).length;
+                
+                for (let dayIndex = 0; dayIndex < DAYS_OF_WEEK.length; dayIndex++) {
+                    for (const shiftType of Object.values(SHIFT_TYPES).map(t => t.id)) {
+                        const key = `${dayIndex}-${shiftType}`;
+                        if (!scheduleData[key] || scheduleData[key].length === 0) {
+                            unassignedCount++;
+                        }
+                    }
+                }
+                
+                // Check for overworked staff
+                const overworkedStaff = [];
+                staffList.forEach(staff => {
+                    const hours = getStaffHours(staff.id);
+                    if (hours > 40) {
+                        overworkedStaff.push(staff.name);
+                    }
+                });
+                
+                // Show conflicts modal
+                if (unassignedCount === 0 && overworkedStaff.length === 0) {
+                    showToast('success', 'No Conflicts Found', 'All shifts are properly assigned');
+                } else {
+                    showConflictsModal(unassignedCount, overworkedStaff);
+                }
+            }, 1000);
+        }
+
+        function saveSchedule() {
+            // Simulate saving to server
+            showToast('info', 'Saving Schedule', 'Saving your changes...');
+            
+            setTimeout(() => {
+                localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
+                showToast('success', 'Schedule Saved', 'Your schedule has been saved successfully');
+            }, 800);
+        }
+
+        function resetSchedule() {
+            if (confirm('Are you sure you want to reset? This will reload the last saved schedule.')) {
+                const savedData = localStorage.getItem('scheduleData');
+                if (savedData) {
+                    scheduleData = JSON.parse(savedData);
+                    renderScheduleGrid();
+                    updateScheduleStats();
+                    updateStaffHours();
+                    showToast('info', 'Schedule Reset', 'Schedule has been reset to last saved state');
+                } else {
+                    showToast('warning', 'No Saved Data', 'No previously saved schedule found');
+                }
+            }
+        }
+
+        function getRecommendedStaffCount(dayIndex, shiftType) {
+            // Simple logic for demo
+            // Weekend needs more staff
+            if (dayIndex >= 5) {
+                return shiftType === 'night' ? 2 : 3;
+            }
+            return shiftType === 'night' ? 1 : 2;
+        }
+
+        function updateStaffHours() {
+            // Update hours worked for each staff member
+            staffList.forEach(staff => {
+                staff.hoursWorked = getStaffHours(staff.id);
+            });
+            
+            // Re-render staff list to reflect changes
+            renderStaffList();
+        }
+
+        function getStaffHours(staffId) {
+            // Count the number of shifts assigned to this staff
+            let hours = 0;
+            
+            for (const key in scheduleData) {
+                if (scheduleData[key].includes(staffId)) {
+                    hours += 8; // Each shift is 8 hours
+                }
+            }
+            
+            return hours;
+        }
+
+        // ===== MODALS =====
+        function showAddStaffModal() {
+            const modalHTML = `
+                <div class="modal-backdrop" id="add-staff-modal">
+                    <div class="modal">
+                        <div class="modal-header">
+                            <div class="modal-title">
+                                <i class="fas fa-user-plus"></i> Add New Staff
+                            </div>
+                            <button class="modal-close">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="add-staff-form">
+                                <div class="form-group">
+                                    <label class="form-label" for="staff-name">Name</label>
+                                    <input type="text" id="staff-name" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="staff-role">Role</label>
+                                    <select id="staff-role" class="form-control" required>
+                                        <option value="Nurse">Nurse</option>
+                                        <option value="Assistant">Assistant</option>
+                                        <option value="Manager">Manager</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="staff-department">Department</label>
+                                    <select id="staff-department" class="form-control" required>
+                                        <option value="A-álma">A-álma</option>
+                                        <option value="B-álma">B-álma</option>
+                                        <option value="C-álma">C-álma</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Available Shifts</label>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-item">
+                                            <input type="checkbox" id="morning-shift" name="shifts" value="morning" checked>
+                                            <label for="morning-shift">Morning (07:00-15:00)</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <input type="checkbox" id="evening-shift" name="shifts" value="evening" checked>
+                                            <label for="evening-shift">Evening (15:00-23:00)</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <input type="checkbox" id="night-shift" name="shifts" value="night">
+                                            <label for="night-shift">Night (23:00-07:00)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn" id="cancel-add-staff">Cancel</button>
+                            <button class="btn btn-primary" id="save-staff-btn">Add Staff</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add modal to DOM
+            const modalContainer = document.createElement('div');
+            modalContainer.innerHTML = modalHTML;
+            document.body.appendChild(modalContainer);
+            
+            // Show modal
+            const modal = document.getElementById('add-staff-modal');
+            setTimeout(() => {
+                modal.classList.add('active');
+            }, 10);
+            
+            // Add event listeners
+            const closeBtn = modal.querySelector('.modal-close');
+            closeBtn.addEventListener('click', () => {
+                modal.classList.remove('active');
+                setTimeout(() => {
+                    modalContainer.remove();
+                }, 300);
+            });
+            
+            const cancelBtn = document.getElementById('cancel-add-staff');
+            cancelBtn.addEventListener('click', () => {
+                modal.classList.remove('active');
+                setTimeout(() => {
+                    modalContainer.remove();
+                }, 300);
+            });
+            
+            const saveBtn = document.getElementById('save-staff-btn');
+            saveBtn.addEventListener('click', () => {
+                const name = document.getElementById('staff-name').value.trim();
+                const role = document.getElementById('staff-role').value;
+                const department = document.getElementById('staff-department').value;
+                
+                if (!name) {
+                    showToast('error', 'Invalid Input', 'Please enter a name');
+                    return;
+                }
+                
+                // Get selected shifts
+                const shiftInputs = document.querySelectorAll('input[name="shifts"]:checked');
+                const shifts = Array.from(shiftInputs).map(input => input.value);
+                
+                if (shifts.length === 0) {
+                    showToast('error', 'Invalid Input', 'Please select at least one shift');
+                    return;
+                }
+                
+                // Add new staff
+                const newId = staffList.length > 0 ? Math.max(...staffList.map(s => s.id)) + 1 : 1;
+                const newStaff = {
+                    id: newId,
+                    name: name,
+                    role: role,
+                    department: department,
+                    status: 'available',
+                    shifts: shifts,
+                    color: getRandomColor(),
+                    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=staff${newId}`,
+                    hoursWorked: 0
+                };
+                
+                staffList.push(newStaff);
+                renderStaffList();
+                
+                showToast('success', 'Staff Added', `${name} has been added to staff list`);
+                modal.classList.remove('active');
+                setTimeout(() => {
+                    modalContainer.remove();
+                }, 300);
+            });
+        }
+
+        function showStaffDetails(staffId) {
+            const staff = staffList.find(s => s.id === staffId);
+            if (!staff) return;
+            
+            const modalHTML = `
+                <div class="modal-backdrop" id="staff-details-modal">
+                    <div class="modal">
+                        <div class="modal-header">
+                            <div class="modal-title">
+                                <i class="fas fa-user"></i> Staff Details
+                            </div>
+                            <button class="modal-close">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                                <div class="staff-avatar" style="position: relative;">
+                                    <img src="${staff.avatar}" alt="${staff.name}" style="width: 80px; height: 80px; border-radius: 50%;">
+                                    <span class="status-indicator ${staff.status}" style="width: 16px; height: 16px;"></span>
+                                </div>
+                                <div class="staff-info">
+                                    <div class="staff-name">${staff.name}</div>
+                                    <div class="staff-role">${staff.role}</div>
+                                    <div class="staff-meta">
+                                        <div class="shift-badges">${staff.shifts.map(shift => {
+                                            const shiftType = Object.values(SHIFT_TYPES).find(t => t.id === shift);
+                                            return `<span class="shift-badge" style="background-color:${shiftType.color}" title="${shiftType.label}">
+                                                        <i class="fas fa-${shiftType.icon}"></i>
+                                                    </span>`;
+                                        }).join('')}
+                                        </div>
+                                        <div class="hours-badge ${staff.hoursWorked > 32 ? 'warning' : ''}">${staff.hoursWorked}h</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn" id="close-staff-details">Close</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add modal to DOM
+            const modalContainer = document.createElement('div');
+            modalContainer.innerHTML = modalHTML;
+            document.body.appendChild(modalContainer);
+            
+            // Show modal
+            const modal = document.getElementById('staff-details-modal');
+            setTimeout(() => {
+                modal.classList.add('active');
+            }, 10);
+            
+            // Add event listeners
+            const closeBtn = modal.querySelector('.modal-close');
+            closeBtn.addEventListener('click', () => {
+                modal.classList.remove('active');
+                setTimeout(() => {
+                    modalContainer.remove();
+                }, 300);
+            });
+        }
+
+        // ===== AI ASSISTANT FUNCTIONS =====
+        function showAIAssistant() {
+            const aiWidget = document.getElementById('ai-widget-container');
+            if (aiWidget) {
+                aiWidget.classList.add('open');
+                // Focus on input if it exists
+                const input = document.getElementById('ai-widget-input');
+                if (input) {
+                    input.focus();
+                }
+            }
+        }
+
+        // ===== TOAST NOTIFICATION FUNCTIONS =====
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            const icon = type === 'success' ? 'check-circle' :
+                        type === 'error' ? 'exclamation-circle' :
+                        type === 'warning' ? 'exclamation-triangle' : 'info-circle';
+            
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="fas fa-${icon}"></i>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${type.charAt(0).toUpperCase() + type.slice(1)}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" aria-label="Close notification">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+
+            toastContainer.appendChild(toast);
+
+            // Add event listener to close button
+            const closeBtn = toast.querySelector('.toast-close');
+            closeBtn.addEventListener('click', () => {
+                toast.classList.add('toast-hide');
+                setTimeout(() => toast.remove(), 300);
+            });
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.classList.add('toast-hide');
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        function showConflictsModal(unassignedCount, overworkedStaff) {
+            const modalContent = `
+                <div class="conflicts-results">
+                    <div class="conflicts-summary">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>${unassignedCount} óúthlutaðar vaktir og ${overworkedStaff.length} ofvinnandi starfsmenn</p>
+                    </div>
+                    <div class="conflicts-list">
+                        ${unassignedCount > 0 ? `
+                            <div class="conflict-item">
+                                <div class="conflict-title">Óúthlutaðar vaktir</div>
+                                <div class="conflict-details">
+                                    <p>${unassignedCount} vaktir eru enn óúthlutaðar í áætluninni.</p>
+                                    <div class="conflict-actions">
+                                        <button class="btn btn-sm primary-btn" onclick="showUnassignedShifts()">Skoða</button>
+                                        <button class="btn btn-sm warning-btn" onclick="autoAssignShifts()">Úthluta sjálfvirkt</button>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
+                        ${overworkedStaff.length > 0 ? `
+                            <div class="conflict-item">
+                                <div class="conflict-title">Ofvinnandi starfsmenn</div>
+                                <div class="conflict-details">
+                                    <p>Eftirfarandi starfsmenn eru með meira en 40 klst á viku:</p>
+                                    <ul>
+                                        ${overworkedStaff.map(staff => `<li>${staff}</li>`).join('')}
+                                    </ul>
+                                    <div class="conflict-actions">
+                                        <button class="btn btn-sm primary-btn" onclick="showOverworkedStaff()">Skoða</button>
+                                        <button class="btn btn-sm warning-btn" onclick="redistributeWork()">Jafna vinnuálag</button>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            createCustomModal('conflicts-modal', 'Árekstrar í vaktaáætlun', modalContent, [
+                {
+                    text: 'Laga alla árekstra',
+                    class: 'primary-btn',
+                    icon: 'magic',
+                    id: 'fix-all-conflicts-btn',
+                    onClick: function() {
+                        fixAllConflicts();
+                        hideModal('conflicts-modal');
+                    }
+                },
+                {
+                    text: 'Loka',
+                    class: 'cancel-btn',
+                    id: 'close-conflicts'
+                }
+            ]);
+
+            showModal('conflicts-modal');
+        }
+
+        // Helper functions for conflict resolution
+        function showUnassignedShifts() {
+            showToast('info', 'Showing Unassigned Shifts', 'Loading unassigned shifts...');
+            // Implementation for showing unassigned shifts
+        }
+
+        function autoAssignShifts() {
+            showToast('info', 'Auto-Assigning Shifts', 'Attempting to automatically assign shifts...');
+            // Implementation for auto-assigning shifts
+        }
+
+        function showOverworkedStaff() {
+            showToast('info', 'Showing Overworked Staff', 'Loading staff details...');
+            // Implementation for showing overworked staff details
+        }
+
+        function redistributeWork() {
+            showToast('info', 'Redistributing Work', 'Attempting to balance workload...');
+            // Implementation for redistributing work
+        }
+
+        function fixAllConflicts() {
+            showToast('info', 'Fixing Conflicts', 'Attempting to resolve all conflicts...');
+            // Implementation for fixing all conflicts
+        }
+
+        // AI Widget functionality
+        function initializeAIWidget() {
+            const aiWidget = document.getElementById('ai-widget-container');
+            const aiToggle = document.getElementById('ai-widget-toggle');
+            const aiInput = document.getElementById('ai-widget-input');
+            const aiSend = document.getElementById('ai-widget-send');
+            const aiMessages = document.getElementById('ai-widget-messages');
+            const aiMinimize = document.getElementById('ai-minimize-btn');
+            const aiClear = document.getElementById('ai-clear-btn');
+
+            if (aiToggle) {
+                aiToggle.addEventListener('click', () => {
+                    aiWidget.classList.toggle('open');
+                    if (aiWidget.classList.contains('open')) {
+                        aiInput.focus();
+                    }
+                });
+            }
+
+            if (aiMinimize) {
+                aiMinimize.addEventListener('click', () => {
+                    aiWidget.classList.remove('open');
+                });
+            }
+
+            if (aiClear) {
+                aiClear.addEventListener('click', () => {
+                    aiMessages.innerHTML = '';
+                    showToast('success', 'Chat Cleared', 'Chat history has been cleared');
+                });
+            }
+
+            if (aiInput && aiSend) {
+                aiInput.addEventListener('input', () => {
+                    aiSend.disabled = !aiInput.value.trim();
+                });
+
+                aiInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+
+                aiSend.addEventListener('click', sendMessage);
+            }
+
+            function sendMessage() {
+                const message = aiInput.value.trim();
+                if (!message) return;
+
+                // Add user message
+                addMessageToChat('user', message);
+                aiInput.value = '';
+                aiSend.disabled = true;
+
+                // Simulate AI response
+                setTimeout(() => {
+                    const response = generateAIResponse(message);
+                    addMessageToChat('assistant', response);
+                }, 1000);
+            }
+
+            function addMessageToChat(type, content) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${type}-message`;
+                
+                const avatar = document.createElement('div');
+                avatar.className = 'message-avatar';
+                avatar.innerHTML = type === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content';
+                
+                const messageText = document.createElement('div');
+                messageText.className = 'message-text';
+                messageText.textContent = content;
+                
+                const messageTime = document.createElement('div');
+                messageTime.className = 'message-time';
+                messageTime.textContent = new Date().toLocaleTimeString();
+                
+                messageContent.appendChild(messageText);
+                messageContent.appendChild(messageTime);
+                
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(messageContent);
+                
+                aiMessages.appendChild(messageDiv);
+                aiMessages.scrollTop = aiMessages.scrollHeight;
+            }
+
+            function generateAIResponse(message) {
+                // Simple response generation for demo
+                const responses = {
+                    'hello': 'Hello! How can I help you with the schedule today?',
+                    'help': 'I can help you with scheduling, conflict resolution, and staff management. What would you like to know?',
+                    'conflicts': 'I can help you identify and resolve scheduling conflicts. Would you like me to check for conflicts now?',
+                    'default': 'I understand you\'re asking about "' + message + '". How can I assist you with that?'
+                };
+
+                return responses[message.toLowerCase()] || responses.default;
+            }
+        }
+
+        // Initialize AI Widget when document is ready
+        document.addEventListener('DOMContentLoaded', initializeAIWidget);
+    </script>
+</body>
+</html>

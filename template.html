@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VaktAI – {{PAGE_TITLE}}</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts - Inter and Nunito -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body class="light-mode">
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1><i class="fas fa-robot"></i> VaktAI</h1>
+                <button class="toggle-btn" id="sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li><a href="index.html"><i class="fas fa-home"></i> Heim</a></li>
+                <li><a href="reports.html"><i class="fas fa-clipboard-list"></i> Vaktarskýrslur</a></li>
+                <li><a href="incidents.html"><i class="fas fa-exclamation-triangle"></i> Atvik</a></li>
+                <li><a href="staff.html"><i class="fas fa-users"></i> Starfsmenn</a></li>
+                <li><a href="inventory.html"><i class="fas fa-boxes"></i> Birgðir</a></li>
+                <li><a href="queries.html"><i class="fas fa-search"></i> Fyrirspurnir</a></li>
+                
+                <li class="menu-section">Stjórnun</li>
+                <li><a href="statistics.html"><i class="fas fa-chart-line"></i> Tölfræði</a></li>
+                <li><a href="notifications.html"><i class="fas fa-bell"></i> Tilkynningar</a></li>
+                <li><a href="schedule.html"><i class="fas fa-calendar-alt"></i> Vaktaskipulag</a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i> Stillingar</a></li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <p>VaktAI v1.0.0</p>
+                <button class="theme-toggle" id="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navigation -->
+            <div class="top-nav">
+                <div class="welcome-message">
+                    <h2>Velkomin aftur, Anna – Team Lead 🧑‍⚕️</h2>
+                    <div class="date-shift">
+                        <span id="current-date">Sunday, April 13</span> – <span id="current-shift">Morgunvakt</span>
+                    </div>
+                </div>
+                
+                <div class="top-actions">
+                    <div class="language-toggle">
+                        <button class="language-btn active">🇮🇸</button>
+                        <button class="language-btn">🇬🇧</button>
+                    </div>
+                    
+                    <button class="notification-btn" id="notification-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-count">3</span>
+                    </button>
+                    
+                    <button class="chat-toggle-btn" id="chat-toggle">
+                        <i class="fas fa-comment-dots"></i>
+                    </button>
+                    
+                    <div class="user-info">
+                        <div class="user-avatar">AS</div>
+                        <div class="user-details">
+                            <div class="user-name">Anna Sigurðardóttir</div>
+                            <div class="user-role">Team Lead</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Page Content -->
+            <div class="page-content">
+                {{PAGE_CONTENT}}
+            </div>
+            
+            <!-- Chat Container -->
+            <div class="chat-container" id="chat-container">
+                <div class="chat-header">
+                    <h3>AI Aðstoð</h3>
+                    <button class="close-chat" id="close-chat">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <!-- Messages will be added here dynamically -->
+                </div>
+                <div class="chat-input">
+                    <textarea id="chat-input" placeholder="Skrifaðu skilaboð..."></textarea>
+                    <button class="btn btn-primary" id="send-message">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Custom JavaScript -->
+    <script src="./script.js"></script>
+    <script src="./page-specific.js"></script>
+</body>
+</html> 
