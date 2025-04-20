@@ -12,6 +12,8 @@ class AIWidget {
     }
 
     init() {
+        console.log('Initializing AI Widget...');
+        
         // Create widget HTML
         this.createWidgetHTML();
         
@@ -23,6 +25,14 @@ class AIWidget {
         this.sendButton = document.getElementById('ai-widget-send');
         this.inputField = document.getElementById('ai-widget-input');
         this.messagesContainer = document.getElementById('ai-widget-messages');
+        
+        // Check if all elements were found
+        if (!this.widgetContainer || !this.toggleButton || !this.closeButton || 
+            !this.clearButton || !this.sendButton || !this.inputField || !this.messagesContainer) {
+            console.error('AI Widget: Some DOM elements were not found. Widget may not function correctly.');
+            this.showToast('Error', 'AI Widget failed to initialize properly', 'error');
+            return;
+        }
         
         // Add event listeners
         this.toggleButton.addEventListener('click', () => this.toggleWidget());
@@ -45,6 +55,8 @@ class AIWidget {
         
         // Add welcome message
         this.addMessage('assistant', 'Hello! I\'m your NurseCare AI assistant. How can I help you today?');
+        
+        console.log('AI Widget initialized successfully');
     }
     
     createWidgetHTML() {
@@ -57,34 +69,37 @@ class AIWidget {
                             <span>NurseCare AI Assistant</span>
                         </div>
                         <div class="ai-widget-actions">
-                            <button class="ai-widget-action" id="ai-minimize-btn" aria-label="Minimize">
+                            <button class="ai-widget-button" id="ai-minimize-btn" aria-label="Minimize">
                                 <i class="fas fa-minus"></i>
                             </button>
-                            <button class="ai-widget-action" id="ai-clear-btn" aria-label="Clear chat">
+                            <button class="ai-widget-button" id="ai-clear-btn" aria-label="Clear chat">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="ai-widget-body" id="ai-widget-messages" aria-live="polite">
+                    <div class="ai-widget-messages" id="ai-widget-messages" aria-live="polite">
                         <!-- Messages will be added here -->
                     </div>
-                    <div class="ai-widget-footer">
-                        <textarea 
-                            class="ai-widget-input" 
-                            id="ai-widget-input" 
-                            placeholder="Ask me anything about the nursing home..." 
-                            rows="1"
-                            aria-label="Chat message"
-                        ></textarea>
-                        <button class="ai-widget-send" id="ai-widget-send" aria-label="Send message" disabled>
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
+                    <div class="ai-widget-input-container">
+                        <div class="ai-widget-input-wrapper">
+                            <textarea 
+                                class="ai-widget-input" 
+                                id="ai-widget-input" 
+                                placeholder="Ask me anything about the nursing home..." 
+                                rows="1"
+                                aria-label="Chat message"
+                            ></textarea>
+                            <button class="ai-widget-send" id="ai-widget-send" aria-label="Send message" disabled>
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <button class="ai-widget-button" id="ai-widget-toggle" aria-label="Toggle AI assistant">
                     <i class="fas fa-robot"></i>
                 </button>
             </div>
+            <div class="toast-container" id="toast-container"></div>
         `;
         
         // Insert widget into the DOM
@@ -105,6 +120,7 @@ class AIWidget {
         this.messages = [];
         this.messagesContainer.innerHTML = '';
         this.addMessage('assistant', 'Hello! I\'m your NurseCare AI assistant. How can I help you today?');
+        this.showToast('Chat Cleared', 'All messages have been cleared', 'info');
     }
     
     updateSendButtonState() {
@@ -118,8 +134,21 @@ class AIWidget {
     
     addMessage(sender, text) {
         const messageElement = document.createElement('div');
-        messageElement.className = `ai-message ${sender}`;
-        messageElement.textContent = text;
+        messageElement.className = `ai-widget-message ${sender}-message`;
+        
+        // Create avatar
+        const avatar = document.createElement('div');
+        avatar.className = 'ai-widget-avatar';
+        avatar.innerHTML = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+        
+        // Create message content
+        const content = document.createElement('div');
+        content.className = 'ai-widget-message-content';
+        content.textContent = text;
+        
+        // Assemble message
+        messageElement.appendChild(avatar);
+        messageElement.appendChild(content);
         
         this.messagesContainer.appendChild(messageElement);
         this.messages.push({ sender, text });
@@ -131,7 +160,7 @@ class AIWidget {
         this.isLoading = isLoading;
         
         // Remove existing loading indicator if present
-        const existingLoading = this.messagesContainer.querySelector('.ai-loading');
+        const existingLoading = this.messagesContainer.querySelector('.ai-widget-typing');
         if (existingLoading) {
             existingLoading.remove();
         }
@@ -139,11 +168,11 @@ class AIWidget {
         // Add loading indicator if loading
         if (isLoading) {
             const loadingElement = document.createElement('div');
-            loadingElement.className = 'ai-loading';
+            loadingElement.className = 'ai-widget-typing';
             loadingElement.innerHTML = `
-                <div class="ai-loading-dot"></div>
-                <div class="ai-loading-dot"></div>
-                <div class="ai-loading-dot"></div>
+                <span></span>
+                <span></span>
+                <span></span>
             `;
             this.messagesContainer.appendChild(loadingElement);
             this.scrollToBottom();
@@ -155,6 +184,8 @@ class AIWidget {
     async sendMessage() {
         const message = this.inputField.value.trim();
         if (!message || this.isLoading) return;
+        
+        console.log('Sending message to AI:', message);
         
         // Add user message to chat
         this.addMessage('user', message);
@@ -169,6 +200,7 @@ class AIWidget {
         
         try {
             // Send message to API
+            console.log('Fetching response from /api/openai...');
             const response = await fetch('/api/openai', {
                 method: 'POST',
                 headers: {
@@ -178,24 +210,80 @@ class AIWidget {
             });
             
             if (!response.ok) {
-                throw new Error('Failed to get response from AI');
+                const errorData = await response.json().catch(() => ({}));
+                console.error('API error:', response.status, errorData);
+                throw new Error(`Failed to get response from AI: ${response.status} ${response.statusText}`);
             }
             
             const data = await response.json();
+            console.log('Received response from AI:', data);
             
             // Add AI response to chat
             this.addMessage('assistant', data.response);
         } catch (error) {
             console.error('Error sending message to AI:', error);
             this.addMessage('assistant', 'Sorry, I encountered an error. Please try again later.');
+            this.showToast('Error', 'Failed to get response from AI assistant', 'error');
         } finally {
             // Hide loading state
             this.updateLoadingState(false);
         }
     }
+    
+    showToast(title, message, type = 'info') {
+        const toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) return;
+        
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        
+        // Get icon based on type
+        let icon = 'info-circle';
+        if (type === 'success') icon = 'check-circle';
+        if (type === 'error') icon = 'exclamation-circle';
+        if (type === 'warning') icon = 'exclamation-triangle';
+        
+        toast.innerHTML = `
+            <div class="toast-icon">
+                <i class="fas fa-${icon}"></i>
+            </div>
+            <div class="toast-content">
+                <div class="toast-title">${title}</div>
+                <div class="toast-message">${message}</div>
+            </div>
+            <button class="toast-close" aria-label="Close notification">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        // Add close button functionality
+        const closeButton = toast.querySelector('.toast-close');
+        closeButton.addEventListener('click', () => {
+            toast.classList.add('toast-hide');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        });
+        
+        // Add to container
+        toastContainer.appendChild(toast);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.classList.add('toast-hide');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 300);
+            }
+        }, 5000);
+    }
 }
 
 // Initialize AI Widget when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing AI Widget...');
     new AIWidget();
 }); 

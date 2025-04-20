@@ -667,71 +667,104 @@
                     </div>
                     
                     <div id="tab-vitals" class="tab-content">
-                        <div class="vitals-chart-container">
-                            <div class="chart-controls">
-                                <div class="timeframe-selector">
-                                    <button class="timeframe-btn active" data-timeframe="day">Dagur</button>
-                                    <button class="timeframe-btn" data-timeframe="week">Vika</button>
-                                    <button class="timeframe-btn" data-timeframe="month">Mánuður</button>
-                                </div>
-                                <div class="vital-selector">
-                                    <button class="vital-btn active" data-vital="all">Öll lífsmörk</button>
-                                    <button class="vital-btn" data-vital="bp">Blóðþrýstingur</button>
-                                    <button class="vital-btn" data-vital="pulse">Púls</button>
-                                    <button class="vital-btn" data-vital="temp">Hiti</button>
-                                    <button class="vital-btn" data-vital="o2">Súrefnismettun</button>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title">Ástand sjúklinga</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="patient-condition-chart" aria-label="Ástand sjúklinga" role="img"></canvas>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <div class="chart-container">
-                                <canvas id="vitals-chart" aria-label="Lífsmörk sjúklings" role="img"></canvas>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title">Aldursdreifing</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="patient-age-chart" aria-label="Aldursdreifing sjúklinga" role="img"></canvas>
+                                    </div>
+                                </div>
                             </div>
-                            
-                            <div class="vitals-table-container">
-                                <h4>Lífsmörk - Saga</h4>
-                                <table class="data-table vitals-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Tími</th>
-                                            <th>Blóðþrýstingur</th>
-                                            <th>Púls</th>
-                                            <th>Hiti</th>
-                                            <th>Súrefnismettun</th>
-                                            <th>Skráð af</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="vitals-history">
-                                        <tr>
-                                            <td>15:30 - 16. apríl</td>
-                                            <td class="warning">170/95 mmHg</td>
-                                            <td>92 slög/mín</td>
-                                            <td>37.2°C</td>
-                                            <td>96%</td>
-                                            <td>Anna S.</td>
-                                        </tr>
-                                        <tr>
-                                            <td>09:15 - 16. apríl</td>
-                                            <td class="warning">165/90 mmHg</td>
-                                            <td>88 slög/mín</td>
-                                            <td>37.0°C</td>
-                                            <td>97%</td>
-                                            <td>Gunnar Þ.</td>
-                                        </tr>
-                                        <tr>
-                                            <td>19:45 - 15. apríl</td>
-                                            <td>150/85 mmHg</td>
-                                            <td>85 slög/mín</td>
-                                            <td>36.8°C</td>
-                                            <td>98%</td>
-                                            <td>Jóhanna K.</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                
-                                <div class="add-vitals">
-                                    <button class="btn-primary" id="add-vitals-btn">
-                                        <i class="fas fa-plus"></i> Skrá ný lífsmörk
-                                    </button>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title">Lífsmörk</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="vitals-chart-container">
+                                            <div class="chart-controls">
+                                                <div class="timeframe-selector">
+                                                    <button class="timeframe-btn active" data-timeframe="day">Dagur</button>
+                                                    <button class="timeframe-btn" data-timeframe="week">Vika</button>
+                                                    <button class="timeframe-btn" data-timeframe="month">Mánuður</button>
+                                                </div>
+                                                <div class="vital-selector">
+                                                    <button class="vital-btn active" data-vital="all">Öll lífsmörk</button>
+                                                    <button class="vital-btn" data-vital="bp">Blóðþrýstingur</button>
+                                                    <button class="vital-btn" data-vital="pulse">Púls</button>
+                                                    <button class="vital-btn" data-vital="temp">Hiti</button>
+                                                    <button class="vital-btn" data-vital="o2">Súrefnismettun</button>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="chart-container">
+                                                <canvas id="vitals-chart" aria-label="Lífsmörk sjúklings" role="img"></canvas>
+                                            </div>
+                                            
+                                            <div class="vitals-table-container">
+                                                <h4>Lífsmörk - Saga</h4>
+                                                <table class="data-table vitals-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Tími</th>
+                                                            <th>Blóðþrýstingur</th>
+                                                            <th>Púls</th>
+                                                            <th>Hiti</th>
+                                                            <th>Súrefnismettun</th>
+                                                            <th>Skráð af</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="vitals-history">
+                                                        <tr>
+                                                            <td>15:30 - 16. apríl</td>
+                                                            <td class="warning">170/95 mmHg</td>
+                                                            <td>92 slög/mín</td>
+                                                            <td>37.2°C</td>
+                                                            <td>96%</td>
+                                                            <td>Anna S.</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>09:15 - 16. apríl</td>
+                                                            <td class="warning">165/90 mmHg</td>
+                                                            <td>88 slög/mín</td>
+                                                            <td>37.0°C</td>
+                                                            <td>97%</td>
+                                                            <td>Gunnar Þ.</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>19:45 - 15. apríl</td>
+                                                            <td>150/85 mmHg</td>
+                                                            <td>85 slög/mín</td>
+                                                            <td>36.8°C</td>
+                                                            <td>98%</td>
+                                                            <td>Jóhanna K.</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                
+                                                <div class="add-vitals">
+                                                    <button class="btn-primary" id="add-vitals-btn">
+                                                        <i class="fas fa-plus"></i> Skrá ný lífsmörk
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1200,8 +1233,8 @@
     <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
     <!-- Scripts -->
-    <script src="/assets/scripts/patients.js"></script>
-    <script src="/script.js"></script>
-    <script src="/assets/scripts/ai-widget.js"></script>
+    <script src="/assets/scripts/patients.js" defer></script>
+    <script src="/assets/scripts/charts.js" defer></script>
+    <script src="/assets/scripts/ai-widget.js" defer></script>
 </body>
 </html>

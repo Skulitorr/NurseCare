@@ -7,15 +7,20 @@ const openai = new OpenAI({
 });
 
 export default async function handler(req, res) {
+  console.log('OpenAI API request received:', req.method);
+  
   // Only allow POST requests
   if (req.method !== 'POST') {
+    console.log('Method not allowed:', req.method);
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
     const { message } = req.body;
+    console.log('Received message:', message);
 
     if (!message) {
+      console.log('Message is required but was not provided');
       return res.status(400).json({ error: 'Message is required' });
     }
 
@@ -28,6 +33,8 @@ export default async function handler(req, res) {
       });
     }
 
+    console.log('Creating completion with OpenAI...');
+    
     // Create completion with OpenAI
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
@@ -47,11 +54,23 @@ export default async function handler(req, res) {
 
     // Extract the response
     const response = completion.choices[0].message.content;
+    console.log('OpenAI response:', response);
 
     // Return the response
     return res.status(200).json({ response });
   } catch (error) {
     console.error('OpenAI API Error:', error);
-    return res.status(500).json({ error: 'Failed to get response from AI assistant' });
+    
+    // Provide a more helpful error message
+    let errorMessage = 'Failed to get response from AI assistant';
+    if (error.response) {
+      console.error('OpenAI API Error Response:', error.response.data);
+      errorMessage = `API Error: ${error.response.status} - ${error.response.data.error?.message || 'Unknown error'}`;
+    }
+    
+    return res.status(500).json({ 
+      error: errorMessage,
+      response: "I'm sorry, but I encountered an error processing your request. Please try again later."
+    });
   }
 } 
